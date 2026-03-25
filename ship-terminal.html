@@ -1,0 +1,3650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Ship Terminal · 44 MiIlion Bells</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --panel: rgba(255, 255, 255, 0.06);
+            --line: rgba(255, 255, 255, 0.12);
+            --line-strong: rgba(255, 255, 255, 0.2);
+            --text-main: #edf3ff;
+            --text-dim: #9cb0d6;
+            --text-mute: #6d7fa5;
+            --accent: #d9e7ff;
+            --accent-red: #ff4b4b;
+            --glass-fill: rgba(255, 255, 255, 0.055);
+            --glass-fill-raised: rgba(255, 255, 255, 0.095);
+            --glass-stroke: rgba(255, 255, 255, 0.14);
+            --glass-stroke-inner: rgba(255, 255, 255, 0.08);
+            --glass-highlight-top: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            --glass-shadow-drop: 0 12px 44px rgba(0, 4, 24, 0.48);
+            --glass-blur: saturate(1.22) blur(26px);
+            --glass-blur-modal: saturate(1.32) blur(38px);
+            --glass-radius: 16px;
+            --glass-radius-xl: 22px;
+        }
+        body {
+            min-height: 100%;
+            background-color: #03040d;
+            background-image:
+                radial-gradient(ellipse 120% 80% at 50% -30%, rgba(38, 72, 160, 0.22) 0%, transparent 58%),
+                linear-gradient(168deg, #040714 0%, #070d1e 38%, #03060f 72%, #020308 100%);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Roboto', sans-serif;
+            color: var(--text-main);
+            line-height: 1.4;
+            overflow-x: hidden;
+        }
+
+        /* 星空背景（与其他页面保持一致） */
+        .sky-backdrop {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 85% 65% at 78% 8%, rgba(72, 112, 210, 0.28) 0%, transparent 52%),
+                radial-gradient(ellipse 70% 55% at 8% 18%, rgba(120, 165, 220, 0.12) 0%, transparent 48%),
+                radial-gradient(ellipse 55% 45% at 92% 72%, rgba(80, 45, 140, 0.14) 0%, transparent 50%),
+                radial-gradient(ellipse 90% 70% at 28% 88%, rgba(35, 95, 130, 0.16) 0%, transparent 48%),
+                radial-gradient(ellipse 60% 50% at 48% 48%, rgba(25, 50, 95, 0.18) 0%, transparent 55%);
+            animation: skyBackdropDrift 100s ease-in-out infinite alternate;
+        }
+
+        @keyframes skyBackdropDrift {
+            0% {
+                opacity: 0.92;
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1.06) translate(-1.5%, 1.2%);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sky-backdrop {
+                animation: none;
+                opacity: 0.96;
+            }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(ellipse at 32% 42%, rgba(6, 12, 30, 0.38) 0%, transparent 62%);
+        }
+
+        .stars::before,
+        .stars::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .stars::before {
+            opacity: 0.26;
+            background:
+                linear-gradient(rgba(168, 187, 220, 0.09) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(168, 187, 220, 0.09) 1px, transparent 1px);
+            background-size: 80px 80px;
+            mix-blend-mode: screen;
+        }
+
+        .stars::after {
+            background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.58) 100%);
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 1.4rem 1.6rem 3rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.78rem;
+            color: #b8cce8;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.65rem;
+        }
+
+        .back-link:hover {
+            color: #e8f0ff;
+            text-decoration: underline;
+        }
+
+        .page-hero h1 {
+            font-size: clamp(1.35rem, 2.4vw, 2rem);
+            font-weight: 520;
+            color: #f4f8ff;
+            letter-spacing: 0.25px;
+        }
+
+        .page-hero p {
+            margin-top: 0.45rem;
+            color: var(--text-dim);
+            font-size: 0.86rem;
+            max-width: 640px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: flex-end;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .nasa-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--glass-fill-raised);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            padding: 0.42rem 0.95rem;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 400;
+            letter-spacing: 1.3px;
+            border: 1px solid var(--glass-stroke);
+            box-shadow: var(--glass-shadow-drop), var(--glass-highlight-top);
+            text-transform: uppercase;
+        }
+
+        .header h1 {
+            font-size: clamp(1.15rem, 2.2vw, 1.75rem);
+            font-weight: 520;
+            letter-spacing: 0.25px;
+            line-height: 1.25;
+            color: #f4f8ff;
+        }
+
+        .header p {
+            margin-top: 0.55rem;
+            color: var(--text-dim);
+            font-size: 0.86rem;
+            letter-spacing: 0.2px;
+            max-width: 680px;
+        }
+
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.35rem 0 1.25rem;
+            position: relative;
+            background: var(--glass-fill);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border-radius: var(--glass-radius-xl);
+            padding: 0.75rem 1.1rem;
+            border: 1px solid var(--glass-stroke);
+            box-shadow: var(--glass-shadow-drop), var(--glass-highlight-top);
+        }
+
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .auth-badge {
+            background: var(--glass-fill-raised);
+            -webkit-backdrop-filter: blur(18px) saturate(1.15);
+            backdrop-filter: blur(18px) saturate(1.15);
+            padding: 5px 10px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--glass-stroke-inner);
+            box-shadow: var(--glass-highlight-top);
+        }
+
+        .auth-badge .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #86ffa6;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(134, 255, 166, 0.8);
+        }
+
+        .auth-scope-text { font-size: 0.7rem; }
+
+        .nav-btn {
+            border: 1px solid var(--glass-stroke-inner);
+            background: var(--glass-fill);
+            -webkit-backdrop-filter: blur(18px) saturate(1.12);
+            backdrop-filter: blur(18px) saturate(1.12);
+            color: #f1f6ff;
+            border-radius: 12px;
+            padding: 0.46rem 0.72rem;
+            font-size: 0.74rem;
+            letter-spacing: 0.3px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: var(--glass-highlight-top);
+        }
+
+        .nav-btn:hover {
+            border-color: rgba(255, 255, 255, 0.26);
+            background: var(--glass-fill-raised);
+        }
+
+        .user-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+            align-items: center;
+        }
+
+        .auth-btn {
+            border: 1px solid var(--glass-stroke-inner);
+            background: var(--glass-fill);
+            -webkit-backdrop-filter: blur(18px) saturate(1.12);
+            backdrop-filter: blur(18px) saturate(1.12);
+            color: #f1f6ff;
+            border-radius: 12px;
+            padding: 0.46rem 0.72rem;
+            font-size: 0.74rem;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: var(--glass-highlight-top);
+        }
+
+        .auth-btn:hover { border-color: rgba(255, 255, 255, 0.26); background: var(--glass-fill-raised); }
+
+        .auth-btn.primary {
+            background: linear-gradient(165deg, rgba(100, 140, 230, 0.55) 0%, rgba(45, 75, 160, 0.55) 100%);
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+
+        .panel {
+            border: 1px solid var(--glass-stroke);
+            border-radius: var(--glass-radius-xl);
+            background: var(--glass-fill);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            padding: 0.9rem 1rem;
+            box-shadow: var(--glass-shadow-drop), var(--glass-highlight-top);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .tab-btn.is-active { border-color: rgba(255, 255, 255, 0.34); background: var(--glass-fill-raised); }
+
+        .terminal-dual-summary {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .terminal-dual-badge {
+            font-size: 0.72rem;
+            color: #dce8ff;
+            border: 1px solid var(--glass-stroke-inner);
+            background: rgba(0, 0, 0, 0.22);
+            padding: 0.35rem 0.6rem;
+            border-radius: 999px;
+            letter-spacing: 0.35px;
+        }
+
+        .ship-thumb-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.7rem;
+        }
+
+        @media (min-width: 640px) { .ship-thumb-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+        .ship-thumb {
+            border: 1px solid var(--glass-stroke-inner);
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+            box-shadow: var(--glass-highlight-top);
+        }
+
+        .ship-thumb-img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ship-thumb-meta { padding: 0.55rem 0.6rem 0.7rem; }
+
+        .ship-thumb-title { font-size: 0.78rem; color: #ffffff; margin-bottom: 0.25rem; line-height: 1.3; }
+        .ship-thumb-sub {
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ach-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+        .ach-item {
+            border: 1px solid var(--glass-stroke-inner);
+            border-radius: 14px;
+            padding: 0.65rem 0.7rem;
+            background: rgba(0, 0, 0, 0.18);
+        }
+        .ach-item.unlocked {
+            border-color: rgba(134, 255, 166, 0.38);
+            background: rgba(134, 255, 166, 0.09);
+        }
+
+        .ach-title {
+            font-size: 0.82rem;
+            color: #eef4ff;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .ach-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #7aa3ff;
+            box-shadow: 0 0 10px rgba(122, 163, 255, 0.65);
+            flex: 0 0 auto;
+        }
+
+        .ach-item.unlocked .ach-dot {
+            background: #86ffa6;
+            box-shadow: 0 0 10px rgba(134, 255, 166, 0.8);
+        }
+
+        .ach-desc { font-size: 0.72rem; color: var(--text-dim); line-height: 1.5; }
+        .ach-extra-desc {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            margin-top: 0.35rem;
+            opacity: 0.95;
+        }
+
+        @media (max-width: 700px) {
+            .ach-list { grid-template-columns: 1fr; }
+        }
+
+        .hidden { display: none; }
+        .loading-message { text-align: center; padding: 4.5rem 1rem; font-size: 1.05rem; color: var(--text-dim); font-weight: 300; }
+
+        .achv-locked-toggle {
+            width: 100%;
+            margin-top: 0.65rem;
+            padding: 0.55rem 0.7rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(0, 0, 0, 0.15);
+            color: #cfe0ff;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", 'Courier New', monospace;
+            letter-spacing: 0.45px;
+        }
+
+        .achv-locked-toggle:hover {
+            border-color: rgba(255, 255, 255, 0.26);
+            background: rgba(0, 0, 0, 0.22);
+        }
+
+        .achv-locked-list {
+            margin-top: 0.65rem;
+            padding-top: 0.65rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.16);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            color: var(--text-mute);
+            font-size: 0.7rem;
+            border-top: 1px solid var(--line);
+            padding-top: 2rem;
+            letter-spacing: 0.3px;
+        }
+
+        .upload-page-card {
+            background: rgba(22, 30, 52, 0.4);
+            -webkit-backdrop-filter: var(--glass-blur-modal);
+            backdrop-filter: var(--glass-blur-modal);
+            border-radius: var(--glass-radius-xl);
+            padding: 1.35rem 1.5rem 1.5rem;
+            border: 1px solid var(--glass-stroke);
+            box-shadow: var(--glass-shadow-drop), var(--glass-highlight-top);
+        }
+
+        .terminal-window-decor {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.65rem 0 1.05rem;
+            padding: 0.55rem 0.7rem;
+            border-radius: 14px;
+            border: 1px dashed rgba(255, 255, 255, 0.16);
+            background: rgba(0, 0, 0, 0.12);
+        }
+
+        .terminal-window-dots {
+            display: flex;
+            gap: 0.45rem;
+            align-items: center;
+        }
+
+        .terminal-window-dots .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .terminal-window-dots .dot.is-red { background: rgba(255, 75, 75, 0.65); }
+        .terminal-window-dots .dot.is-yellow { background: rgba(255, 210, 80, 0.65); }
+        .terminal-window-dots .dot.is-green { background: rgba(120, 255, 180, 0.60); }
+
+        .terminal-window-label {
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.35px;
+            color: rgba(220, 232, 255, 0.78);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.05rem;
+            align-items: start;
+        }
+
+        .left-col,
+        .right-col {
+            min-width: 0;
+        }
+
+        @media (max-width: 900px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .aquarium-card {
+            border: 1px solid var(--glass-stroke);
+            background: rgba(0, 0, 0, 0.18);
+            border-radius: var(--glass-radius-xl);
+            padding: 0.95rem 0.95rem 1rem;
+            box-shadow: var(--glass-highlight-top);
+        }
+
+        .achievements-card {
+            border: 1px solid var(--glass-stroke);
+            background: rgba(0, 0, 0, 0.18);
+            border-radius: var(--glass-radius-xl);
+            padding: 0.95rem 0.95rem 1rem;
+            box-shadow: var(--glass-highlight-top);
+            margin-top: 1.05rem;
+            min-width: 0;
+        }
+
+        .aquarium-title {
+            font-size: 0.92rem;
+            color: #f1f6ff;
+            font-weight: 520;
+            letter-spacing: 0.25px;
+            margin-bottom: 0.55rem;
+        }
+
+        .aquarium {
+            width: 100%;
+            height: 560px;
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse at 50% 25%, rgba(120, 210, 255, 0.22) 0%, transparent 62%),
+                linear-gradient(160deg, rgba(0, 30, 70, 0.45) 0%, rgba(2, 6, 18, 0.65) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .aquarium canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* frutiger aero / 科技玻璃装饰层 */
+        .aquarium::before,
+        .aquarium::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: 18px;
+            z-index: 2;
+        }
+
+        .aquarium::before {
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.22) 0px,
+                rgba(255, 255, 255, 0.22) 1px,
+                rgba(255, 255, 255, 0) 3px,
+                rgba(255, 255, 255, 0) 7px
+            );
+            opacity: 0.05;
+            mix-blend-mode: overlay;
+            animation: aquariumScanDrift 8s linear infinite;
+        }
+
+        .aquarium::after {
+            background:
+                linear-gradient(to right, rgba(220, 232, 255, 0.10) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(220, 232, 255, 0.10) 1px, transparent 1px);
+            background-size: 64px 64px;
+            opacity: 0.035;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes aquariumScanDrift {
+            0% { transform: translateY(-10px); }
+            100% { transform: translateY(10px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .aquarium::before { animation: none; }
+        }
+
+        .aquarium-hud {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+            padding: 0.7rem 0.85rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .aquarium-hud-top {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .hud-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.45px;
+            text-transform: uppercase;
+            color: rgba(220, 232, 255, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(0, 0, 0, 0.18);
+            border-radius: 999px;
+            padding: 0.32rem 0.6rem;
+            -webkit-backdrop-filter: blur(12px) saturate(1.12);
+            backdrop-filter: blur(12px) saturate(1.12);
+        }
+
+        .aquarium-hud-status {
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.45px;
+            text-transform: uppercase;
+            color: rgba(220, 232, 255, 0.74);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(0, 0, 0, 0.18);
+            border-radius: 999px;
+            padding: 0.32rem 0.6rem;
+            -webkit-backdrop-filter: blur(12px) saturate(1.12);
+            backdrop-filter: blur(12px) saturate(1.12);
+            white-space: nowrap;
+        }
+
+        .aquarium-hud-status.is-unlocked {
+            color: rgba(200, 255, 220, 0.92);
+            border-color: rgba(134, 255, 166, 0.38);
+            background: rgba(134, 255, 166, 0.09);
+        }
+
+        .aquarium-hint {
+            margin-top: 0.55rem;
+            font-size: 0.74rem;
+            color: var(--text-dim);
+            line-height: 1.55;
+        }
+
+        .fish-arranger {
+            margin-top: 0.65rem;
+            border: 1px solid var(--glass-stroke-inner);
+            background: rgba(0, 0, 0, 0.16);
+            border-radius: 16px;
+            padding: 0.65rem 0.7rem 0.7rem;
+        }
+
+        .fish-arranger-title {
+            font-size: 0.78rem;
+            color: #eaf2ff;
+            font-weight: 520;
+            letter-spacing: 0.2px;
+            margin-bottom: 0.4rem;
+        }
+
+        .fish-arranger-row {
+            display: flex;
+            gap: 0.55rem;
+            align-items: center;
+        }
+
+        .fish-arranger input {
+            flex: 1;
+            width: 100%;
+            padding: 0.55rem 0.7rem;
+            background: rgba(0, 0, 0, 0.26);
+            border: 1px solid var(--glass-stroke-inner);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.86rem;
+            -webkit-backdrop-filter: blur(14px) saturate(1.05);
+            backdrop-filter: blur(14px) saturate(1.05);
+            outline: none;
+        }
+
+        .fish-arranger button {
+            border: 1px solid var(--glass-stroke-inner);
+            background: var(--glass-fill);
+            -webkit-backdrop-filter: blur(18px) saturate(1.12);
+            backdrop-filter: blur(18px) saturate(1.12);
+            color: #f1f6ff;
+            border-radius: 12px;
+            padding: 0.46rem 0.72rem;
+            font-size: 0.74rem;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: var(--glass-highlight-top);
+            white-space: nowrap;
+        }
+
+        .fish-arranger button:hover {
+            background: var(--glass-fill-raised);
+            border-color: rgba(255, 255, 255, 0.26);
+        }
+
+        .fish-arranger-hint {
+            margin-top: 0.45rem;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            line-height: 1.55;
+        }
+
+        .fish-seed-panel .fish-arranger-title {
+            margin-bottom: 0.55rem;
+        }
+
+        .fish-emoji-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .emoji-choice {
+            border: 1px solid var(--glass-stroke-inner);
+            background: rgba(0, 0, 0, 0.16);
+            -webkit-backdrop-filter: blur(10px) saturate(1.05);
+            backdrop-filter: blur(10px) saturate(1.05);
+            color: #f1f6ff;
+            border-radius: 12px;
+            padding: 0.38rem 0.55rem;
+            font-size: 1.05rem;
+            cursor: pointer;
+            box-shadow: var(--glass-highlight-top);
+            line-height: 1.1;
+            transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+        }
+
+        .emoji-choice:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.26);
+        }
+
+        .emoji-choice.is-active {
+            background: var(--glass-fill-raised);
+            border-color: rgba(255, 255, 255, 0.30);
+        }
+
+        .fish-seed-status {
+            margin-top: 0.55rem;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            line-height: 1.55;
+        }
+
+        .fish-seed-name-row {
+            margin-top: 0.55rem;
+        }
+
+        .fish-seed-actions {
+            margin-top: 0.55rem;
+        }
+
+        .fish-seed-hint {
+            margin-top: 0.5rem;
+        }
+
+        .fish-seed-list-title {
+            font-size: 0.75rem;
+            color: #eaf2ff;
+            font-weight: 520;
+            letter-spacing: 0.2px;
+            margin-top: 0.6rem;
+        }
+
+        .fish-seed-list-panel {
+            margin-top: 0.4rem;
+            border: 1px solid var(--glass-stroke-inner);
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 14px;
+            padding: 0.55rem 0.6rem;
+            max-height: 120px;
+            overflow: auto;
+        }
+
+        .fish-seed-process-panel {
+            margin-top: 0.55rem;
+            border: 1px solid var(--glass-stroke-inner);
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 14px;
+            padding: 0.55rem 0.6rem 0.6rem;
+        }
+
+        .fish-seed-feed-row {
+            margin-top: 0.55rem;
+            display: flex;
+            gap: 0.65rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .feed-now-btn {
+            border: 1px solid var(--glass-stroke-inner);
+            background: var(--glass-fill);
+            -webkit-backdrop-filter: blur(18px) saturate(1.12);
+            backdrop-filter: blur(18px) saturate(1.12);
+            color: #f1f6ff;
+            border-radius: 12px;
+            padding: 0.46rem 0.72rem;
+            font-size: 0.74rem;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: var(--glass-highlight-top);
+            text-transform: uppercase;
+        }
+
+        .feed-now-btn:hover {
+            border-color: rgba(255, 255, 255, 0.26);
+            background: var(--glass-fill-raised);
+        }
+
+        .feed-now-hint {
+            color: var(--text-dim);
+            font-size: 0.72rem;
+            line-height: 1.55;
+        }
+
+        .aquarium-manager-panel {
+            border: 1px solid var(--glass-stroke-inner);
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: var(--glass-radius-xl);
+            padding: 0.9rem 0.95rem 1rem;
+            box-shadow: var(--glass-highlight-top);
+        }
+
+        .aquarium-manager-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .aquarium-manager-title {
+            font-size: 0.88rem;
+            font-weight: 560;
+            color: #eef4ff;
+            letter-spacing: 0.2px;
+        }
+
+        .aquarium-manager-subtitle {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 0.35px;
+            white-space: nowrap;
+        }
+
+        .aquarium-manager-summary {
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.76rem;
+            color: rgba(220, 232, 255, 0.75);
+            margin-bottom: 0.55rem;
+        }
+
+        .aquarium-manager-split {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.6rem;
+        }
+
+        @media (min-width: 900px) {
+            .aquarium-manager-split {
+                grid-template-columns: 1fr 1.2fr;
+                align-items: start;
+            }
+        }
+
+        .aquarium-manager-list {
+            border: 1px solid var(--glass-stroke-inner);
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 14px;
+            padding: 0.55rem 0.6rem;
+            max-height: 220px;
+            overflow: auto;
+        }
+
+        .aquarium-manager-item {
+            width: 100%;
+            text-align: left;
+            border: 0;
+            background: transparent;
+            color: #eef4ff;
+            cursor: pointer;
+            font-family: inherit;
+            padding: 0.35rem 0.35rem;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .aquarium-manager-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .aquarium-manager-item.is-active {
+            background: rgba(134, 255, 166, 0.10);
+            outline: 1px solid rgba(134, 255, 166, 0.25);
+        }
+
+        .aquarium-manager-item-left {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            min-width: 0;
+        }
+
+        .aquarium-manager-item-emoji {
+            width: 1.4rem;
+            text-align: center;
+            flex: 0 0 auto;
+            filter: drop-shadow(0 0 8px rgba(150, 220, 255, 0.18));
+        }
+
+        .aquarium-manager-item-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.78rem;
+        }
+
+        .aquarium-manager-item-dir {
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .aquarium-manager-details {
+            border: 1px solid var(--glass-stroke-inner);
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 14px;
+            padding: 0.6rem 0.65rem;
+        }
+
+        .aquarium-manager-details-title {
+            font-size: 0.75rem;
+            color: #eaf2ff;
+            font-weight: 520;
+            letter-spacing: 0.2px;
+            margin-bottom: 0.35rem;
+        }
+
+        .aquarium-manager-details-body {
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .aquarium-manager-details-actions {
+            margin-top: 0.55rem;
+            display: flex;
+            gap: 0.55rem;
+            flex-wrap: wrap;
+        }
+
+        .aquarium-manager-btn {
+            border: 1px solid var(--glass-stroke-inner);
+            background: var(--glass-fill);
+            -webkit-backdrop-filter: blur(18px) saturate(1.12);
+            backdrop-filter: blur(18px) saturate(1.12);
+            color: #f1f6ff;
+            border-radius: 12px;
+            padding: 0.45rem 0.7rem;
+            font-size: 0.74rem;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: var(--glass-highlight-top);
+        }
+
+        .aquarium-manager-btn:hover {
+            background: var(--glass-fill-raised);
+            border-color: rgba(255, 255, 255, 0.26);
+        }
+
+        .fish-seed-process-title {
+            font-size: 0.75rem;
+            color: #eaf2ff;
+            font-weight: 520;
+            letter-spacing: 0.2px;
+            margin-bottom: 0.35rem;
+        }
+
+        .fish-seed-process-log {
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            line-height: 1.55;
+            max-height: 110px;
+            overflow: auto;
+        }
+
+        .process-line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            gap: 0.45rem;
+            align-items: baseline;
+            padding: 0.12rem 0;
+        }
+
+        .process-ts {
+            color: rgba(220, 232, 255, 0.70);
+            flex: 0 0 auto;
+        }
+
+        .process-msg {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .process-ok .process-msg {
+            color: #c8ffe0;
+        }
+
+        .fish-seed-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0;
+            color: #eef4ff;
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+
+        .fish-seed-item-emoji {
+            width: 1.6rem;
+            text-align: center;
+            flex: 0 0 auto;
+            filter: drop-shadow(0 0 8px rgba(150, 220, 255, 0.18));
+        }
+
+        .upload-page-card h2 {
+            font-weight: 500;
+            font-size: 1.15rem;
+            margin-bottom: 1.05rem;
+        }
+
+        .echo-mini-panel {
+            margin: -0.15rem 0 1.05rem;
+            padding: 0.55rem 0.68rem;
+            border-radius: 14px;
+            border: 1px solid rgba(127, 232, 255, 0.18);
+            background: rgba(0, 6, 18, 0.28);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                0 0 22px rgba(127, 232, 255, 0.10);
+            color: rgba(186, 220, 255, 0.92);
+            font-family: ui-monospace, 'Cascadia Code', 'Consolas', 'SFMono-Regular', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            line-height: 1.6;
+            overflow: hidden;
+        }
+
+        .echo-mini-panel::before {
+            content: "ECHO";
+            display: inline-block;
+            margin-right: 0.55rem;
+            padding: 0.16rem 0.45rem;
+            border-radius: 999px;
+            border: 1px solid rgba(127, 232, 255, 0.26);
+            background: rgba(0, 12, 28, 0.38);
+            letter-spacing: 0.16em;
+        }
+
+        /* 与其他页面一致的登录模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 10, 22, 0.52);
+            -webkit-backdrop-filter: saturate(1.15) blur(22px);
+            backdrop-filter: saturate(1.15) blur(22px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(22, 30, 52, 0.42);
+            -webkit-backdrop-filter: var(--glass-blur-modal);
+            backdrop-filter: var(--glass-blur-modal);
+            max-width: 480px;
+            width: 90%;
+            border-radius: 26px;
+            padding: 2rem;
+            border: 1px solid var(--glass-stroke);
+            box-shadow: var(--glass-shadow-drop), var(--glass-highlight-top);
+        }
+
+        .modal-content h3 {
+            font-weight: 500;
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .auth-help {
+            margin-top: 0.7rem;
+            font-size: 0.76rem;
+            color: var(--text-dim);
+            line-height: 1.55;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            margin: 12px 0;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.26);
+            border: 1px solid var(--glass-stroke-inner);
+            border-radius: 16px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            -webkit-backdrop-filter: blur(14px) saturate(1.05);
+            backdrop-filter: blur(14px) saturate(1.05);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 20px;
+            border-radius: 999px;
+            border: 1px solid var(--glass-stroke-inner);
+            cursor: pointer;
+            background: var(--glass-fill-raised);
+            -webkit-backdrop-filter: blur(14px) saturate(1.1);
+            backdrop-filter: blur(14px) saturate(1.1);
+            color: white;
+            font-weight: 500;
+            box-shadow: var(--glass-highlight-top);
+        }
+
+        .modal-buttons button.primary {
+            background: linear-gradient(165deg, rgba(100, 140, 230, 0.55) 0%, rgba(45, 75, 160, 0.55) 100%);
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(28, 36, 58, 0.45);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            padding: 10px 26px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            z-index: 1100;
+            border: 1px solid var(--glass-stroke);
+            box-shadow: var(--glass-shadow-drop), 0 0 0 1px rgba(106, 158, 255, 0.22), var(--glass-highlight-top);
+            pointer-events: none;
+        }
+
+        .achieve-modal-content {
+            max-width: 520px;
+            padding: 2rem 2.1rem 1.7rem;
+            background: rgba(22, 30, 52, 0.55);
+            border-radius: 26px;
+            border: 1px solid var(--glass-stroke);
+            box-shadow: var(--glass-shadow-drop), var(--glass-highlight-top);
+        }
+
+        .achieve-modal-badge {
+            margin-top: 0.4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            color: #dce8ff;
+            letter-spacing: 0.6px;
+            font-size: 0.78rem;
+        }
+
+        .achieve-modal-desc {
+            margin-top: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            font-size: 0.86rem;
+        }
+
+        .achieve-modal-foot {
+            margin-top: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--line);
+        }
+
+        .achv-terminal {
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.78rem;
+            color: rgba(220, 232, 255, 0.75);
+            letter-spacing: 0.4px;
+        }
+
+        .achv-terminal-code {
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.78rem;
+            color: rgba(200, 255, 220, 0.85);
+        }
+
+        .achieve-detail-modal-content {
+            max-width: 680px;
+            padding: 2rem 2.2rem 1.5rem;
+            background: rgba(22, 30, 52, 0.52);
+            border-radius: 26px;
+            border: 1px solid var(--glass-stroke);
+            box-shadow: var(--glass-shadow-drop), var(--glass-highlight-top);
+        }
+
+        .achv-detail-grid {
+            margin-top: 1.1rem;
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .achv-detail-label {
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .achv-detail-value {
+            color: #eef4ff;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .achv-detail-codebox {
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(0, 0, 0, 0.22);
+            border-radius: 14px;
+            padding: 0.85rem 0.9rem;
+            color: rgba(200, 255, 220, 0.9);
+            font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.82rem;
+            letter-spacing: 0.4px;
+        }
+
+        .achv-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .achv-detail-header h3 {
+            margin: 0;
+        }
+
+        .achv-detail-close-btn {
+            padding: 0.55rem 0.95rem;
+        }
+    </style>
+</head>
+<body>
+<div class="sky-backdrop" aria-hidden="true"></div>
+<div class="stars" id="stars-container"></div>
+
+<div class="container">
+    <div class="page-hero">
+        <a class="back-link" href="./galaxy.html">← 返回星图首页</a>
+        <h1>🛰 舰船终端</h1>
+    </div>
+
+    <div class="control-bar">
+        <div class="auth-status">
+            <div class="auth-badge">
+                <span class="dot"></span>
+                <span id="authUserText">授权成员 · 未登录</span>
+            </div>
+            <span id="authScopeText" class="auth-scope-text">🔭 登录后提交双人确认</span>
+        </div>
+        <div class="user-actions">
+            <button type="button" class="auth-btn" id="openAuthBtn">🔐 登录</button>
+            <button type="button" class="auth-btn hidden" id="logoutBtn">⏻ 退出</button>
+            <a class="nav-btn" href="./galaxy.html">星图</a>
+            <a class="nav-btn" href="./roche-log.html">Roche Log</a>
+            <a class="nav-btn" href="./upload.html">上传台</a>
+            <a class="nav-btn" href="./gesture-terminal.html">🔮 卜筮终端</a>
+        </div>
+    </div>
+
+    <div class="upload-page-card">
+        <div class="terminal-window-decor" aria-hidden="true">
+            <div class="terminal-window-dots">
+                <span class="dot is-red"></span>
+                <span class="dot is-yellow"></span>
+                <span class="dot is-green"></span>
+            </div>
+            <div class="terminal-window-label">SYS · ACHV TERMINAL</div>
+        </div>
+        <div id="echoMiniPanel" class="echo-mini-panel" aria-live="polite">最近链路事件：暂无</div>
+        <div class="two-col">
+            <div class="left-col">
+                <div class="aquarium-card">
+                    <div class="aquarium" id="aquariumWrap">
+                        <canvas id="aquariumCanvas"></canvas>
+                        <div class="aquarium-hud" aria-hidden="true">
+                            <div class="aquarium-hud-top">
+                                <span class="hud-tag">AQUARIUM HUD</span>
+                                <span class="aquarium-hud-status" id="aquariumHudCoopStatus">DUAL CO-OP · PENDING</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="fish-arranger fish-seed-panel">
+                        <div class="fish-arranger-title">鱼苗投放（emoji + 命名）</div>
+
+                        <div class="fish-emoji-picker" id="fishEmojiPicker" aria-label="选择要投放的鱼">
+                            <button type="button" class="emoji-choice is-active" data-emoji="🐠" aria-label="🐠">🐠</button>
+                            <button type="button" class="emoji-choice" data-emoji="🐡" aria-label="🐡">🐡</button>
+                            <button type="button" class="emoji-choice" data-emoji="🐬" aria-label="🐬">🐬</button>
+                            <button type="button" class="emoji-choice" data-emoji="🦈" aria-label="🦈">🦈</button>
+                            <button type="button" class="emoji-choice" data-emoji="🐟" aria-label="🐟">🐟</button>
+                            <button type="button" class="emoji-choice" data-emoji="🐳" aria-label="🐳">🐳</button>
+                        </div>
+
+                        <div class="fish-seed-name-row fish-arranger-row">
+                            <input type="text" id="fishSeedNameInput" placeholder="给这条鱼苗命名（例如：星尘-1）" aria-label="鱼苗命名">
+                            <button type="button" id="cancelFishSeedBtn">取消</button>
+                        </div>
+
+                        <div class="fish-seed-actions fish-arranger-row">
+                            <button type="button" id="confirmFishSeedBtn">确认鱼苗</button>
+                        </div>
+
+                        <div class="fish-seed-status" id="pendingSeedText">未选定鱼苗。先点“确认鱼苗”投放到鱼缸。</div>
+                        <div class="fish-seed-list-title">已放入</div>
+                        <div class="fish-seed-list-panel" id="fishListPanel">无</div>
+
+                        <div class="fish-seed-process-panel">
+                            <div class="fish-seed-process-title">进程</div>
+                            <div class="fish-seed-process-log" id="fishSeedProcessLog"></div>
+                        </div>
+
+                        <div class="fish-seed-feed-row">
+                            <button type="button" id="feedNowBtn" class="feed-now-btn">喂食一次</button>
+                            <span id="feedNowHint" class="feed-now-hint">会同步到云端，并让鱼缸更“活跃”一会儿</span>
+                        </div>
+
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="right-col">
+                <div class="aquarium-manager-panel" id="fishManagerPanel">
+                    <div class="aquarium-manager-header">
+                        <span class="aquarium-manager-title">鱼苗管理系统</span>
+                        <span class="aquarium-manager-subtitle">SEED MGMT · CLI</span>
+                    </div>
+                    <div class="aquarium-manager-summary" id="fishManagerSummary">已投放：0</div>
+                    <div class="aquarium-manager-split">
+                        <div class="aquarium-manager-list" id="fishManagerList">无</div>
+                        <div class="aquarium-manager-details">
+                            <div class="aquarium-manager-details-title">详情</div>
+                            <div class="aquarium-manager-details-body" id="fishManagerDetails">
+                                请选择一条鱼苗查看参数。
+                            </div>
+                            <div class="aquarium-manager-details-actions">
+                                <button type="button" id="removeSelectedFishBtn" class="aquarium-manager-btn">删除选中</button>
+                                <button type="button" id="clearSelectionBtn" class="aquarium-manager-btn">取消选择</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="achievements-card">
+                    <div id="achievementsPanel"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>© 44 MiIlion Bells · Ship Terminal</footer>
+</div>
+
+<!-- 登录模态框 -->
+<div id="authModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+        <h3>🔐 授权成员登录</h3>
+        <input type="email" id="emailInput" placeholder="授权邮箱" autocomplete="email">
+        <input type="password" id="passwordInput" placeholder="密码" autocomplete="current-password">
+        <div class="modal-buttons">
+            <button type="button" id="closeAuthModalBtn">取消</button>
+            <button type="button" id="loginBtn" class="primary">登录</button>
+        </div>
+        <p class="auth-help">仅白名单中的两位成员可登录并提交“双人确认”。未登录用户仍可浏览联合展厅状态与展品。</p>
+    </div>
+</div>
+
+<!-- 成就解锁弹窗（终端风格） -->
+<div id="achieveModal" class="modal" aria-hidden="true">
+    <div class="modal-content achieve-modal-content">
+        <h3 id="achieveModalTitle">成就解锁</h3>
+        <div class="achieve-modal-badge" id="achieveModalBadge">ACHV</div>
+        <div class="achieve-modal-desc" id="achieveModalDesc">...</div>
+        <div class="achieve-modal-foot">
+            <span class="achv-terminal">SYS</span>
+            <span id="achieveModalCode" class="achv-terminal-code">—</span>
+        </div>
+    </div>
+</div>
+
+<!-- 成就详情弹窗（终端风格） -->
+<div id="achieveDetailModal" class="modal" aria-hidden="true">
+    <div class="modal-content achieve-detail-modal-content">
+        <div class="achv-detail-header">
+            <h3 id="achieveDetailTitle">成就详情</h3>
+            <button type="button" id="achieveDetailCloseBtn" class="auth-btn achv-detail-close-btn">关闭</button>
+        </div>
+        <div class="achv-detail-grid">
+            <div class="achv-detail-grid">
+                <div class="achv-detail-label">STATUS</div>
+                <div class="achv-detail-value" id="achieveDetailStatus">—</div>
+                <div class="achv-detail-label">ACHV</div>
+                <div class="achv-detail-value" id="achieveDetailBadge">—</div>
+                <div class="achv-detail-label">判定情况</div>
+                <div class="achv-detail-codebox" id="achieveDetailJudge">—</div>
+                <div class="achv-detail-label">额外说明（待你编写）</div>
+                <div class="achv-detail-codebox" id="achieveDetailNote">—</div>
+                <div class="achv-detail-label">CODE</div>
+                <div class="achv-detail-codebox" id="achieveDetailCode">—</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<script>
+    // ---------- 本地/演示用照片回退 ----------
+    let photosCollection = [
+        {
+            id: "nasa1",
+            title: "船底座星云 · 宇宙悬崖",
+            description: "詹姆斯·韦伯空间望远镜拍摄，恒星育婴室的壮观细节。",
+            imageUrl: "https://images-assets.nasa.gov/image/PIA25686/PIA25686~orig.jpg",
+            date: "2025-02-10",
+            author: "NASA/ESA",
+        },
+        {
+            id: "nasa2",
+            title: "螺旋星云 NGC 7293",
+            description: "上帝之眼，行星状星云中的瑰宝。",
+            imageUrl: "https://images-assets.nasa.gov/image/PIA09178/PIA09178~orig.jpg",
+            date: "2024-12-12",
+            author: "Spitzer 空间望远镜",
+        },
+    ];
+
+    let supabaseClient = null;
+    let currentUser = null;
+
+    const STORAGE_BUCKET = 'photos';
+    const PHOTOS_TABLE = 'photos';
+
+    // ---------- Supabase 配置 ----------
+    const allowedUsers = (window.SUPABASE_CONFIG && Array.isArray(window.SUPABASE_CONFIG.allowedUsers))
+        ? window.SUPABASE_CONFIG.allowedUsers.map((e) => String(e).toLowerCase().trim())
+        : [];
+    const userDisplayNames = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.userDisplayNames)
+        ? window.SUPABASE_CONFIG.userDisplayNames
+        : {};
+
+    // ---------- 辅助函数 ----------
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function getDisplayNameByEmail(emailLike) {
+        const email = String(emailLike || '').toLowerCase().trim();
+        if (!email) return '授权成员';
+        const fromMap = userDisplayNames[email];
+        if (fromMap && String(fromMap).trim()) return String(fromMap).trim();
+        if (email.includes('@')) return email.split('@')[0];
+        return email;
+    }
+
+    function dateToTimestamp(dateLike) {
+        if (!dateLike) return null;
+        const parsed = new Date(dateLike);
+        if (Number.isNaN(parsed.getTime())) return null;
+        return parsed.getTime();
+    }
+
+    // ---------- Roche Echo（本地回声，仅用于成就展示）----------
+    const ECHO_STORAGE_KEY = 'rocheEchoActions_v1';
+    const ECHO_MAX_EVENTS = 30;
+    const ECHO_WINDOW_MS = 1000 * 60 * 60 * 24 * 30; // 近 30 天
+
+    function safeLoadEchoActions() {
+        try {
+            const raw = localStorage.getItem(ECHO_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(parsed)) return [];
+            return parsed;
+        } catch (_e) {
+            return [];
+        }
+    }
+
+    function safeSaveEchoActions(actions) {
+        try {
+            localStorage.setItem(ECHO_STORAGE_KEY, JSON.stringify(actions));
+        } catch (_e) {
+            // localStorage 可能被禁用，这里静默忽略
+        }
+    }
+
+    function getUserEchoActions() {
+        if (!currentUser) return [];
+        const all = safeLoadEchoActions();
+        const now = Date.now();
+        return all
+            .filter((a) => a && a.userId === currentUser.id)
+            .filter((a) => typeof a.t === 'number' && now - a.t <= ECHO_WINDOW_MS)
+            .slice(-ECHO_MAX_EVENTS);
+    }
+
+    function recordRocheEchoEvent(type, data = {}) {
+        if (!currentUser) return false;
+        const all = safeLoadEchoActions();
+        const now = Date.now();
+        const next = [...all, { t: now, type, userId: currentUser.id, data: data || {} }];
+        const pruned = next
+            .filter((a) => a && typeof a.t === 'number' && now - a.t <= ECHO_WINDOW_MS)
+            .slice(-ECHO_MAX_EVENTS);
+        safeSaveEchoActions(pruned);
+        return true;
+    }
+
+    function formatTimeAgo(ts) {
+        if (!ts) return '';
+        const diff = Math.max(0, Date.now() - ts);
+        const sec = Math.floor(diff / 1000);
+        if (sec < 60) return `${sec} 秒前`;
+        const min = Math.floor(sec / 60);
+        if (min < 60) return `${min} 分钟前`;
+        const hr = Math.floor(min / 60);
+        if (hr < 24) return `${hr} 小时前`;
+        const day = Math.floor(hr / 24);
+        return `${day} 天前`;
+    }
+
+    function getEchoEventTypeLabelAndDetail(evt) {
+        const type = evt && evt.type ? String(evt.type) : '';
+        const d = (evt && evt.data) ? evt.data : {};
+
+        if (type === 'login_success') {
+            return { label: '登录成功', detail: d.email ? String(d.email) : '' };
+        }
+        if (type === 'photo_uploaded') {
+            const parts = [];
+            if (d.title) parts.push(`「${String(d.title)}」`);
+            if (d.author) parts.push(String(d.author));
+            return { label: '影像上传', detail: parts.join(' · ') };
+        }
+        if (type === 'aquarium_feed') {
+            const parts = [];
+            if (typeof d.feed_strength !== 'undefined') parts.push(`强度 ${String(d.feed_strength)}`);
+            if (d.author) parts.push(String(d.author));
+            return { label: '鱼缸喂食', detail: parts.join(' · ') };
+        }
+        if (type === 'aquarium_seed_place') {
+            const em = d.emoji ? String(d.emoji) : '';
+            const name = d.name ? String(d.name) : '鱼苗';
+            return { label: '鱼苗投放', detail: `${em ? (em + ' ') : ''}${name}`.trim() };
+        }
+        if (type === 'open_manager') return { label: '打开管理舱', detail: '' };
+        if (type === 'delete_photo') return { label: '清理照片', detail: d.title ? `「${String(d.title)}」` : '' };
+        if (type === 'view') return { label: '浏览落点', detail: '' };
+
+        return { label: type || '未知事件', detail: '' };
+    }
+
+    function renderEchoMini() {
+        const el = document.getElementById('echoMiniPanel');
+        if (!el) return;
+
+        if (!currentUser) {
+            el.textContent = '最近链路事件：未登录';
+            return;
+        }
+
+        const actions = getUserEchoActions();
+        if (!actions || !actions.length) {
+            el.textContent = '最近链路事件：暂无';
+            return;
+        }
+
+        const sorted = actions.slice().sort((a, b) => (a.t || 0) - (b.t || 0));
+        const last = sorted[sorted.length - 1];
+        const { label, detail } = getEchoEventTypeLabelAndDetail(last);
+        const ago = formatTimeAgo(last.t);
+        el.textContent = `最近链路事件：${label}${detail ? ` · ${detail}` : ''}（${ago}）`;
+    }
+
+    // ---------- 双人确认（本地联动原型）----------
+    const SHIP_DUAL_CONFIRM_KEY = 'shipTerminalDualConfirm_v1';
+    const SHIP_DUAL_CONFIRM_WINDOW_MS = 1000 * 60 * 60 * 24 * 14; // 14天内有效
+
+    function safeLoadShipDualConfirms() {
+        try {
+            const raw = localStorage.getItem(SHIP_DUAL_CONFIRM_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(parsed)) return [];
+            return parsed;
+        } catch (_e) {
+            return [];
+        }
+    }
+
+    function safeSaveShipDualConfirms(events) {
+        try {
+            localStorage.setItem(SHIP_DUAL_CONFIRM_KEY, JSON.stringify(events));
+        } catch (_e) {
+            // localStorage 可能被禁用，这里静默忽略
+        }
+    }
+
+    function getDualCoopStatus() {
+        const now = Date.now();
+        const allowed = (Array.isArray(allowedUsers) ? allowedUsers : [])
+            .map((e) => String(e).toLowerCase().trim())
+            .filter(Boolean);
+
+        const events = safeLoadShipDualConfirms()
+            .filter((e) => e && typeof e.t === 'number')
+            .filter((e) => now - e.t <= SHIP_DUAL_CONFIRM_WINDOW_MS);
+
+        const confirmedEmailSet = new Set(
+            events
+                .map((e) => String(e.email || '').toLowerCase().trim())
+                .filter(Boolean)
+        );
+
+        const confirmedAllowed = allowed.filter((email) => confirmedEmailSet.has(email));
+        const bothConfirmed = allowed.length >= 2
+            && confirmedEmailSet.has(allowed[0])
+            && confirmedEmailSet.has(allowed[1]);
+
+        const lastByEmail = {};
+        for (const ev of events) {
+            const em = String(ev.email || '').toLowerCase().trim();
+            if (!em) continue;
+            if (!lastByEmail[em] || ev.t > lastByEmail[em]) lastByEmail[em] = ev.t;
+        }
+
+        return { allowedEmails: allowed, confirmedEmails: confirmedAllowed, confirmedCount: confirmedAllowed.length, bothConfirmed, lastByEmail };
+    }
+
+    function isAlreadyConfirmedForEmail(emailLike) {
+        const email = String(emailLike || '').toLowerCase().trim();
+        if (!email) return false;
+        const st = getDualCoopStatus();
+        return !!(st.lastByEmail[email] && (Date.now() - st.lastByEmail[email] <= SHIP_DUAL_CONFIRM_WINDOW_MS));
+    }
+
+    function getUserDualConfirmCount() {
+        if (!currentUser) return 0;
+        const email = String(currentUser.email || '').toLowerCase().trim();
+        if (!email) return 0;
+
+        const now = Date.now();
+        const events = safeLoadShipDualConfirms()
+            .filter((e) => e && typeof e.t === 'number')
+            .filter((e) => now - e.t <= SHIP_DUAL_CONFIRM_WINDOW_MS)
+            .filter((e) => String(e.email || '').toLowerCase().trim() === email);
+
+        return events.length;
+    }
+
+    // ---------- Supabase ----------
+    async function bootstrapSupabase() {
+        if (!window.supabase || !window.SUPABASE_CONFIG) {
+            updateAuthUI();
+            renderAll();
+            return;
+        }
+        const { url, anonKey } = window.SUPABASE_CONFIG;
+        if (!url || !anonKey) {
+            updateAuthUI();
+            renderAll();
+            return;
+        }
+
+        supabaseClient = window.supabase.createClient(url, anonKey);
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        currentUser = sessionData && sessionData.session ? sessionData.session.user : null;
+
+        if (currentUser && !allowedUsers.includes((currentUser.email || '').toLowerCase())) {
+            await supabaseClient.auth.signOut();
+            currentUser = null;
+            showToast('当前账号不在白名单，已自动退出');
+        }
+
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
+            currentUser = session ? session.user : null;
+            updateAuthUI();
+            renderAll();
+        });
+
+        updateAuthUI();
+        renderAll();
+    }
+
+    async function loadPhotosFromCloud() {
+        if (!supabaseClient) return;
+        const { data, error } = await supabaseClient
+            .from(PHOTOS_TABLE)
+            .select('id, title, description, image_url, captured_at, author')
+            .order('captured_at', { ascending: false });
+        if (error) return;
+
+        photosCollection = (data || []).map((row) => ({
+            id: row.id,
+            title: row.title,
+            description: row.description,
+            imageUrl: row.image_url,
+            date: row.captured_at,
+            author: row.author,
+        }));
+    }
+
+    // ---------- Toast ----------
+    let toastTimeout = null;
+    function showToast(msg, duration = 2500) {
+        const existing = document.querySelector('.toast-msg');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => toast.remove(), duration);
+    }
+
+    // 星空背景生成（与 upload / log 页面一致）
+    function generateStars() {
+        const starsContainer = document.getElementById('stars-container');
+        if (!starsContainer) return;
+        starsContainer.innerHTML = '';
+        const starCount = 320;
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            const size = Math.random() * 3 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            const duration = 2 + Math.random() * 4;
+            const delay = Math.random() * 5;
+            star.style.animation = `twinkle ${duration}s infinite alternate`;
+            star.style.animationDelay = `${delay}s`;
+            star.style.opacity = String(0.3 + Math.random() * 0.6);
+            starsContainer.appendChild(star);
+        }
+    }
+
+        // ---------- 水族界面 ----------
+        const aquariumState = {
+            started: false,
+            unlocked: false,
+            bubbles: [],
+            fish: [],
+            decor: [],
+            feedBoostUntil: 0,
+            feedBoostLevel: 0,
+            w: 0,
+            h: 0,
+            dpr: 1,
+            rafId: null,
+            spawnAcc: 0,
+        };
+
+        function setAquariumMood(unlocked) {
+            aquariumState.unlocked = !!unlocked;
+        }
+
+        function initAquarium() {
+            const canvas = document.getElementById('aquariumCanvas');
+            if (!canvas) return;
+            if (aquariumState.started) return;
+            aquariumState.started = true;
+
+            const wrap = canvas.parentElement;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            aquariumState.dpr = Math.max(1, window.devicePixelRatio || 1);
+
+            const resize = () => {
+                const rect = wrap.getBoundingClientRect();
+                // 给鱼缸一点下限，避免小屏过矮导致动画难看
+                const w = Math.max(240, Math.floor(rect.width));
+                const h = Math.max(320, Math.floor(rect.height));
+                aquariumState.w = w;
+                aquariumState.h = h;
+                canvas.width = Math.floor(w * aquariumState.dpr);
+                canvas.height = Math.floor(h * aquariumState.dpr);
+            };
+
+            resize();
+            if (typeof ResizeObserver !== 'undefined') {
+                const ro = new ResizeObserver(resize);
+                ro.observe(wrap);
+            } else {
+                window.addEventListener('resize', resize);
+            }
+
+            const rand = (min, max) => min + Math.random() * (max - min);
+
+            // 鱼：用 emoji 品种代替（不同系统的 emoji 外观可能略有差异）
+            const fishEmojis = ['🐠', '🐡', '🐬', '🦈', '🐟', '🐳'];
+            const sizeHardMin = 14;
+            const sizeHardMax = 32;
+
+            // 限制在视觉可读范围内：常规，再偏移成“更大/更小”
+            function makeFishSize() {
+                // 常规大小
+                const normalSize = rand(19, 25);
+                // 更大/更小在常规的基础上偏移
+                let size;
+                const roll = Math.random();
+                if (roll < 0.28) {
+                    size = normalSize - rand(3, 6); // 更小
+                } else if (roll < 0.66) {
+                    size = normalSize; // 常规
+                } else {
+                    size = normalSize + rand(3, 7); // 更大
+                }
+                return Math.max(sizeHardMin, Math.min(sizeHardMax, size));
+            }
+
+            const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+            // 底部固定装饰（emoji）：珊瑚礁/水母/石头章鱼/大鱿鱼
+            // 这些与鱼的运动逻辑无关，仅作为视觉静态元素叠加在鱼缸底部。
+            aquariumState.decor = [
+                { emoji: '🪸', xRatio: 0.22, yRatio: 0.88, sizeMul: 1.00, glow: 'rgba(150, 220, 255, 0.55)', blur: 18 },
+                { emoji: '🪸', xRatio: 0.35, yRatio: 0.90, sizeMul: 0.95, glow: 'rgba(140, 255, 220, 0.45)', blur: 18 },
+                { emoji: '🪼', xRatio: 0.58, yRatio: 0.83, sizeMul: 0.98, glow: 'rgba(180, 235, 255, 0.55)', blur: 20 },
+                // 石头上的章鱼（这里拆成两个 emoji：石头 + 章鱼，视觉上叠在一起）
+                { emoji: '🪨', xRatio: 0.49, yRatio: 0.90, sizeMul: 1.05, glow: 'rgba(200, 235, 255, 0.22)', blur: 16 },
+                { emoji: '🐙', xRatio: 0.49, yRatio: 0.85, sizeMul: 0.85, glow: 'rgba(160, 235, 255, 0.52)', blur: 20 },
+                { emoji: '🦑', xRatio: 0.80, yRatio: 0.87, sizeMul: 1.00, glow: 'rgba(170, 245, 255, 0.50)', blur: 20 },
+            ];
+
+            // 鱼苗摆放：本地持久化（刷新不丢）
+            const AQUARIUM_FISH_STORAGE_KEY = 'aquariumFishSeeds_v1';
+            function safeLoadFishSeeds() {
+                try {
+                    const raw = localStorage.getItem(AQUARIUM_FISH_STORAGE_KEY);
+                    const parsed = raw ? JSON.parse(raw) : [];
+                    if (!Array.isArray(parsed)) return [];
+                    return parsed;
+                } catch (_e) {
+                    return [];
+                }
+            }
+
+            function safeSaveFishSeeds(list) {
+                try {
+                    localStorage.setItem(AQUARIUM_FISH_STORAGE_KEY, JSON.stringify(list));
+                } catch (_e) {
+                    // localStorage 可能被禁用：静默忽略
+                }
+            }
+
+            function saveCurrentFishSeedsToLocal() {
+                const w = aquariumState.w;
+                const h = aquariumState.h;
+                const list = aquariumState.fish.map((f) => ({
+                    rx: w ? (f.x / w) : 0,
+                    ry: h ? (f.y / h) : 0,
+                    startRx: w ? ((typeof f.startX === 'number' ? f.startX : f.x) / w) : 0,
+                    endRx: w ? ((typeof f.endX === 'number' ? f.endX : (f.dir === 1 ? w : 0)) / w) : 0,
+                    size: f.size,
+                    dir: f.dir,
+                    speed: f.speed,
+                    phase: f.phase,
+                    wobble: f.wobble,
+                    emoji: f.emoji,
+                    name: f.name,
+                }));
+                safeSaveFishSeeds(list);
+            }
+
+            function loadFishSeedsFromLocal() {
+                const saved = safeLoadFishSeeds();
+                if (!saved.length) return [];
+                return saved.map((s) => {
+                    const rx = typeof s.rx === 'number' ? s.rx : Math.random();
+                    const ry = typeof s.ry === 'number' ? s.ry : Math.random();
+                    const x = clamp(rx * aquariumState.w, 0, aquariumState.w);
+                    const yMin = aquariumState.h * 0.18;
+                    const yMax = aquariumState.h * 0.78;
+                    const y = clamp(ry * aquariumState.h, yMin, yMax);
+                    const size = clamp(Number(s.size || makeFishSize()), sizeHardMin, sizeHardMax);
+                    const emoji = s.emoji || '🐟';
+                    const name = String(s.name || '').trim() || '鱼苗';
+                    const dir = (typeof s.dir === 'number' && (s.dir === 1 || s.dir === -1)) ? s.dir : (x < aquariumState.w / 2 ? 1 : -1);
+
+                    // 每条鱼独立的起点/终点：支持从 localStorage 读取；若缺失则随机生成
+                    const swimEdgeMargin = Math.max(24, aquariumState.w * 0.08);
+                    const startX = clamp(
+                        ((typeof s.startRx === 'number' ? s.startRx : rx) * aquariumState.w),
+                        0,
+                        aquariumState.w
+                    );
+                    const endX = (() => {
+                        if (typeof s.endRx === 'number') return clamp(s.endRx * aquariumState.w, 0, aquariumState.w);
+                        return dir === 1
+                            ? rand(aquariumState.w - swimEdgeMargin, aquariumState.w)
+                            : rand(0, swimEdgeMargin);
+                    })();
+
+                    // 每条鱼每次穿过的“终点”随机（用于严格的从一侧到另一侧完整过线）
+                    const pad = size * 2;
+                    const passEndX = dir === 1
+                        ? aquariumState.w + rand(pad * 0.25, pad * 0.8)
+                        : -rand(pad * 0.25, pad * 0.8);
+
+                    return {
+                        x,
+                        startX,
+                        endX,
+                        y,
+                        size,
+                        dir,
+                        speed: typeof s.speed === 'number' ? s.speed : rand(26, 62),
+                        phase: typeof s.phase === 'number' ? s.phase : rand(0, Math.PI * 2),
+                        wobble: 0,
+                        straightLine: true,
+                        passEndX,
+                        emoji,
+                        name,
+                        byUser: true,
+                    };
+                });
+            }
+
+            // 鱼缸中的鱼以“鱼苗投放”为准：默认不生成随机鱼
+            aquariumState.fish = loadFishSeedsFromLocal();
+
+            // 鱼苗投放模式：确认后立即把鱼苗投放到鱼缸
+            let pendingSeed = null; // 目前用于取消/提示，实际投放在“确认鱼苗”
+            let selectedEmoji = '🐟';
+            const maxTotalFish = 14;
+
+            // ---------- 云端同步（共享鱼苗 + 喂食日志）----------
+            const FISH_SEEDS_TABLE = 'aquarium_fish_seeds';
+            const FEED_LOGS_TABLE = 'aquarium_feed_logs';
+            let cloudEnabled = false;
+            let cloudInitTimer = null;
+
+            const fishEmojiPicker = document.getElementById('fishEmojiPicker');
+            const fishSeedNameInput = document.getElementById('fishSeedNameInput');
+            const confirmFishSeedBtn = document.getElementById('confirmFishSeedBtn');
+            const cancelFishSeedBtn = document.getElementById('cancelFishSeedBtn');
+            const pendingSeedText = document.getElementById('pendingSeedText');
+            const fishListPanel = document.getElementById('fishListPanel');
+            const fishSeedProcessLog = document.getElementById('fishSeedProcessLog');
+            const feedNowBtn = document.getElementById('feedNowBtn');
+            const fishManagerSummaryEl = document.getElementById('fishManagerSummary');
+            const fishManagerListEl = document.getElementById('fishManagerList');
+            const fishManagerDetailsEl = document.getElementById('fishManagerDetails');
+            const removeSelectedFishBtn = document.getElementById('removeSelectedFishBtn');
+            const clearSelectionBtn = document.getElementById('clearSelectionBtn');
+
+            let selectedFishUid = null;
+
+            function formatTimeHHMMSS(ts) {
+                try {
+                    const d = new Date(ts);
+                    const pad = (n) => String(n).padStart(2, '0');
+                    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+                } catch (_e) {
+                    return '';
+                }
+            }
+
+            function terminalProcessLog(msg, ok = true) {
+                if (!fishSeedProcessLog) return;
+                const now = Date.now();
+                const line = document.createElement('div');
+                line.className = `process-line ${ok ? 'process-ok' : ''}`.trim();
+                line.innerHTML = `
+                    <span class="process-ts">[${escapeHtml(formatTimeHHMMSS(now))}]</span>
+                    <span class="process-msg">${escapeHtml(msg)}</span>
+                `;
+                fishSeedProcessLog.prepend(line);
+                // 只保留最近几行
+                const maxLines = 12;
+                while (fishSeedProcessLog.childElementCount > maxLines) {
+                    const last = fishSeedProcessLog.lastElementChild;
+                    if (!last) break;
+                    last.remove();
+                }
+            }
+
+            let feedPollingStarted = false;
+            let lastFeedLogTs = 0;
+            const processedFeedIds = new Set();
+
+            function applyFeedEffect(feedStrength = 1, whoLabel = '') {
+                const strength = Math.max(0, Math.min(10, Number(feedStrength) || 1));
+                const now = Date.now();
+                aquariumState.feedBoostUntil = Math.max(aquariumState.feedBoostUntil, now) + 8000;
+                aquariumState.feedBoostLevel = Math.min(6, aquariumState.feedBoostLevel + strength * 0.8);
+                terminalProcessLog(`${whoLabel ? whoLabel : ''}喂食 OK（强度 ${strength}）`, true);
+                // 同步到 Roche Echo 回声舱（本地记录：每位成员自己的回声）
+                recordRocheEchoEvent('aquarium_feed', {
+                    feed_strength: strength,
+                    author: whoLabel ? String(whoLabel).trim() : '',
+                });
+                renderEchoMini();
+            }
+
+            async function loadFishSeedsFromCloud() {
+                if (!supabaseClient || !currentUser) return false;
+                const { data, error } = await supabaseClient
+                    .from(FISH_SEEDS_TABLE)
+                    .select('id, emoji, name, rx, ry, dir, size, speed, phase, straight_line, pass_end_rx, start_rx, end_rx, wobble, created_at')
+                    .order('created_at', { ascending: false });
+                if (error) {
+                    showToast('云端加载鱼苗失败');
+                    return false;
+                }
+
+                const w = aquariumState.w || 1;
+                const h = aquariumState.h || 1;
+                aquariumState.fish = (data || []).map((row) => {
+                    const rx = typeof row.rx === 'number' ? row.rx : 0.5;
+                    const ry = typeof row.ry === 'number' ? row.ry : 0.5;
+                    const x = rx * w;
+                    const yMin = h * 0.18;
+                    const yMax = h * 0.78;
+                    const y = clamp(ry * h, yMin, yMax);
+                    const dir = (row.dir === 1 || row.dir === -1) ? row.dir : (x < w / 2 ? 1 : -1);
+                    const size = clamp(Number(row.size || 20), sizeHardMin, sizeHardMax);
+                    return {
+                        id: row.id,
+                        emoji: row.emoji || '🐟',
+                        name: row.name || '鱼苗',
+                        x,
+                        y,
+                        dir,
+                        size,
+                        speed: Number(row.speed || rand(26, 62)),
+                        phase: Number(row.phase || rand(0, Math.PI * 2)),
+                        wobble: Number(row.wobble || 0),
+                        straightLine: row.straight_line !== false,
+                        startX: Number(row.start_rx || 0) * w,
+                        endX: Number(row.end_rx || 0) * w,
+                        passEndX: (typeof row.pass_end_rx === 'number' ? row.pass_end_rx : (dir === 1 ? 1 : 0)) * w,
+                        byUser: true,
+                    };
+                });
+                updateFishListPanel();
+                terminalProcessLog(`云端同步鱼苗：${aquariumState.fish.length} 条`, true);
+                return true;
+            }
+
+            let fishSeedsSyncStarted = false;
+            async function syncFishSeedsFromCloudOnce() {
+                if (!supabaseClient || !currentUser) return;
+                const { data, error } = await supabaseClient
+                    .from(FISH_SEEDS_TABLE)
+                    .select('id, emoji, name, rx, ry, dir, size, speed, phase, straight_line, pass_end_rx, start_rx, end_rx, wobble, created_at');
+                if (error) return;
+
+                const w = aquariumState.w || 1;
+                const h = aquariumState.h || 1;
+                const localById = new Set((aquariumState.fish || []).map((f) => f && f.id).filter(Boolean));
+                const remote = (data || []).filter((r) => r && r.id);
+                const remoteById = new Set(remote.map((r) => r.id));
+
+                // remove
+                const beforeCount = aquariumState.fish.length;
+                aquariumState.fish = (aquariumState.fish || []).filter((f) => !f.id || remoteById.has(f.id));
+
+                // add
+                for (const row of remote) {
+                    if (!localById.has(row.id)) {
+                        const rx = typeof row.rx === 'number' ? row.rx : 0.5;
+                        const ry = typeof row.ry === 'number' ? row.ry : 0.5;
+                        const x = rx * w;
+                        const yMin = h * 0.18;
+                        const yMax = h * 0.78;
+                        const y = clamp(ry * h, yMin, yMax);
+                        const dir = (row.dir === 1 || row.dir === -1) ? row.dir : (x < w / 2 ? 1 : -1);
+                        const size = clamp(Number(row.size || 20), sizeHardMin, sizeHardMax);
+                        aquariumState.fish.push({
+                            id: row.id,
+                            emoji: row.emoji || '🐟',
+                            name: row.name || '鱼苗',
+                            x,
+                            y,
+                            dir,
+                            size,
+                            speed: Number(row.speed || rand(26, 62)),
+                            phase: Number(row.phase || rand(0, Math.PI * 2)),
+                            wobble: Number(row.wobble || 0),
+                            straightLine: row.straight_line !== false,
+                            startX: Number(row.start_rx || 0) * w,
+                            endX: Number(row.end_rx || 0) * w,
+                            passEndX: (typeof row.pass_end_rx === 'number' ? row.pass_end_rx : (dir === 1 ? 1 : 0)) * w,
+                            byUser: true,
+                        });
+                        // 同步到 Roche Echo 回声舱（本地记录：代表“你看到/参与了”）
+                        recordRocheEchoEvent('aquarium_seed_place', {
+                            emoji: row.emoji || '🐟',
+                            name: row.name || '鱼苗',
+                        });
+                        renderEchoMini();
+                    }
+                }
+
+                if (aquariumState.fish.length !== beforeCount) {
+                    updateFishListPanel();
+                }
+            }
+
+            async function pollFeedLogsOnce() {
+                if (!supabaseClient || !currentUser) return;
+                const { data, error } = await supabaseClient
+                    .from(FEED_LOGS_TABLE)
+                    .select('id, created_at, feed_strength, message, author')
+                    .order('created_at', { ascending: false })
+                    .limit(8);
+                if (error) return;
+
+                const rows = (data || []).slice().sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+                for (const row of rows) {
+                    if (!row || !row.id) continue;
+                    const ts = row.created_at ? new Date(row.created_at).getTime() : 0;
+                    if (ts <= lastFeedLogTs) continue;
+                    if (processedFeedIds.has(row.id)) continue;
+                    processedFeedIds.add(row.id);
+                    lastFeedLogTs = Math.max(lastFeedLogTs, ts);
+                    const strength = Number(row.feed_strength || 1);
+                    const who = row.author ? String(row.author) + ' ' : '';
+                    applyFeedEffect(strength, who);
+                }
+            }
+
+            function startCloudSyncOnceReady() {
+                if (cloudInitTimer) return;
+                cloudInitTimer = setInterval(() => {
+                    if (cloudEnabled) return;
+                    if (!supabaseClient || !currentUser) return;
+                    cloudEnabled = true;
+                    loadFishSeedsFromCloud().then(() => {
+                        if (!feedPollingStarted) {
+                            feedPollingStarted = true;
+                            pollFeedLogsOnce();
+                            setInterval(pollFeedLogsOnce, 2500);
+                        }
+                        if (!fishSeedsSyncStarted) {
+                            fishSeedsSyncStarted = true;
+                            setInterval(syncFishSeedsFromCloudOnce, 4500);
+                        }
+                    });
+                    if (cloudInitTimer) clearInterval(cloudInitTimer);
+                    cloudInitTimer = null;
+                }, 500);
+            }
+
+            function updatePendingSeedText() {
+                if (!pendingSeedText) return;
+                if (!pendingSeed) {
+                    pendingSeedText.textContent = '未选定鱼苗。';
+                    return;
+                }
+                pendingSeedText.textContent = `已确认鱼苗：${pendingSeed.emoji} · ${pendingSeed.name}。点击鱼缸投放！`;
+            }
+
+            function updateFishListPanel() {
+                if (!fishListPanel) return;
+                if (!aquariumState.fish.length) {
+                    fishListPanel.textContent = '无';
+                    updateFishManagerUI();
+                    return;
+                }
+                fishListPanel.innerHTML = aquariumState.fish.map((f) => `
+                    <div class="fish-seed-item">
+                        <span class="fish-seed-item-emoji">${escapeHtml(f.emoji || '🐟')}</span>
+                        <span>${escapeHtml(f.name || '鱼苗')}</span>
+                    </div>
+                `).join('');
+                updateFishManagerUI();
+            }
+
+            function ensureFishUids() {
+                for (let i = 0; i < aquariumState.fish.length; i++) {
+                    const f = aquariumState.fish[i];
+                    if (!f) continue;
+                    if (f.uid) continue;
+                    if (f.id) {
+                        f.uid = String(f.id);
+                    } else {
+                        f.uid = f.localUid || `local-${i}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                        f.localUid = f.uid;
+                    }
+                }
+            }
+
+            function getFishByUid(uid) {
+                if (!uid) return null;
+                return aquariumState.fish.find((f) => f && f.uid === uid) || null;
+            }
+
+            function renderFishManagerList() {
+                if (!fishManagerListEl) return;
+                ensureFishUids();
+                if (!aquariumState.fish.length) {
+                    fishManagerListEl.textContent = '无';
+                    fishManagerDetailsEl && (fishManagerDetailsEl.textContent = '请选择一条鱼苗查看参数。');
+                    return;
+                }
+                fishManagerListEl.innerHTML = aquariumState.fish.map((f) => {
+                    const active = selectedFishUid && f.uid === selectedFishUid;
+                    const dirLabel = f.dir === 1 ? '←右' : '→左';
+                    return `
+                        <button type="button" class="aquarium-manager-item ${active ? 'is-active' : ''}" data-uid="${escapeHtml(String(f.uid))}">
+                            <span class="aquarium-manager-item-left">
+                                <span class="aquarium-manager-item-emoji">${escapeHtml(f.emoji || '🐟')}</span>
+                                <span class="aquarium-manager-item-name">${escapeHtml(f.name || '鱼苗')}</span>
+                            </span>
+                            <span class="aquarium-manager-item-dir">${escapeHtml(dirLabel)}</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            function renderFishManagerDetails(f) {
+                if (!fishManagerDetailsEl) return;
+                if (!f) {
+                    fishManagerDetailsEl.textContent = '请选择一条鱼苗查看参数。';
+                    return;
+                }
+                const w = aquariumState.w || 1;
+                const h = aquariumState.h || 1;
+                const rx = f.x / w;
+                const ry = f.y / h;
+                const dirText = f.dir === 1 ? 'LEFT → RIGHT' : 'RIGHT → LEFT';
+                const startRx = typeof f.startX === 'number' ? f.startX / w : 0;
+                const endRx = typeof f.endX === 'number' ? f.endX / w : 0;
+                const passEndRx = typeof f.passEndX === 'number' ? f.passEndX / w : 0;
+                const wobbleText = (typeof f.straightLine === 'boolean' && f.straightLine) ? 'STRAIGHT' : 'WOBBLE';
+
+                fishManagerDetailsEl.textContent = [
+                    `NAME      : ${f.name || '鱼苗'}`,
+                    `EMOJI     : ${f.emoji || '🐟'}`,
+                    `UID       : ${String(f.uid || '')}`,
+                    `DIR       : ${dirText}`,
+                    `POS(rx,ry): ${rx.toFixed(3)}, ${ry.toFixed(3)}`,
+                    `SIZE(px)  : ${Math.floor(f.size || 0)}`,
+                    `SPEED(px/s): ${Number(f.speed || 0).toFixed(1)}`,
+                    `START(rx) : ${startRx.toFixed(3)}`,
+                    `END(rx)   : ${endRx.toFixed(3)}`,
+                    `PASS_END  : ${passEndRx.toFixed(3)}`,
+                    `MOTION    : ${wobbleText}`,
+                ].join('\n');
+            }
+
+            function updateFishManagerUI() {
+                if (fishManagerSummaryEl) {
+                    const total = aquariumState.fish.length || 0;
+                    fishManagerSummaryEl.textContent = `已投放：${total} / ${maxTotalFish}`;
+                }
+                ensureFishUids();
+                if (selectedFishUid && !getFishByUid(selectedFishUid)) {
+                    selectedFishUid = null;
+                }
+                const selected = getFishByUid(selectedFishUid);
+                renderFishManagerList();
+                renderFishManagerDetails(selected);
+            }
+
+            if (fishEmojiPicker) {
+                const buttons = fishEmojiPicker.querySelectorAll('.emoji-choice');
+                buttons.forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const em = btn.getAttribute('data-emoji') || '🐟';
+                        selectedEmoji = em;
+                        buttons.forEach((b) => b.classList.remove('is-active'));
+                        btn.classList.add('is-active');
+                    });
+                });
+                // 取页面默认 is-active
+                const active = fishEmojiPicker.querySelector('.emoji-choice.is-active');
+                if (active) selectedEmoji = active.getAttribute('data-emoji') || selectedEmoji;
+            }
+
+            if (fishManagerListEl) {
+                fishManagerListEl.addEventListener('click', (e) => {
+                    const target = e.target;
+                    if (!(target instanceof Element)) return;
+                    const btn = target.closest && target.closest('.aquarium-manager-item');
+                    if (!btn) return;
+                    const uid = btn.getAttribute('data-uid');
+                    if (!uid) return;
+                    selectedFishUid = uid;
+                    updateFishManagerUI();
+                });
+            }
+
+            if (removeSelectedFishBtn) {
+                removeSelectedFishBtn.addEventListener('click', async () => {
+                    const f = getFishByUid(selectedFishUid);
+                    if (!f) {
+                        showToast('请先选择一条鱼苗');
+                        return;
+                    }
+                    // 用同一套移除逻辑：如果云端存在 id 就云端删除，否则本地删除
+                    if (cloudEnabled && supabaseClient && currentUser && f.id) {
+                        const { error } = await supabaseClient
+                            .from(FISH_SEEDS_TABLE)
+                            .delete()
+                            .eq('id', f.id);
+                        if (error) {
+                            showToast('云端移除失败');
+                            return;
+                        }
+                    } else {
+                        aquariumState.fish = aquariumState.fish.filter((x) => x && x.uid !== selectedFishUid);
+                        safeSaveFishSeeds([]);
+                        // 回写本地（仅在非云端模式才有意义）
+                        if (!cloudEnabled) saveCurrentFishSeedsToLocal();
+                    }
+
+                    // 本地 UI 与详情刷新
+                    updateFishListPanel();
+                    updateFishManagerUI();
+                    terminalProcessLog(`删除鱼苗：${f.emoji || '🐟'} · ${f.name || '鱼苗'}`, true);
+                    selectedFishUid = null;
+                    updateFishManagerUI();
+                });
+            }
+
+            if (clearSelectionBtn) {
+                clearSelectionBtn.addEventListener('click', () => {
+                    selectedFishUid = null;
+                    updateFishManagerUI();
+                });
+            }
+
+            if (confirmFishSeedBtn) {
+                confirmFishSeedBtn.addEventListener('click', async () => {
+                    if (supabaseClient && currentUser && !cloudEnabled) {
+                        showToast('云端同步中，请稍候');
+                        return;
+                    }
+                    const rawName = fishSeedNameInput ? fishSeedNameInput.value : '';
+                    const name = String(rawName || '').trim();
+                    const finalName = name || `鱼苗-${aquariumState.fish.length + 1}`;
+                    const seed = { emoji: selectedEmoji, name: finalName };
+                    pendingSeed = null;
+                    updatePendingSeedText();
+
+                    // 确认后立即投放到鱼缸：放在水体中间段（避免离边太近）
+                    const cx = rand(aquariumState.w * 0.08, aquariumState.w * 0.92);
+                    const cy = rand(aquariumState.h * 0.22, aquariumState.h * 0.78);
+                    const ok = await addFishAt(cx, cy, seed);
+
+                    if (fishSeedNameInput) fishSeedNameInput.value = '';
+                    if (!ok) return;
+
+                    // 成就：累计投放鱼苗（单人本地统计）
+                    const userKey = getAchievementUserKey();
+                    if (userKey) {
+                        const k = `shipTerminalAchv_fishPlacedTotal_v1_${userKey}`;
+                        const cur = safeLoadNumber(k, 0);
+                        safeSaveNumber(k, cur + 1);
+                    }
+                    tryUnlockPersonalAchievements();
+                    renderAchievements();
+                });
+            }
+
+            if (cancelFishSeedBtn) {
+                cancelFishSeedBtn.addEventListener('click', () => {
+                    pendingSeed = null;
+                    if (fishSeedNameInput) fishSeedNameInput.value = '';
+                    updatePendingSeedText();
+                    showToast('已取消本次鱼苗。');
+                });
+            }
+
+            // 左侧不再提供“清空鱼”：删除/移除统一在右侧管理系统完成
+
+            if (feedNowBtn) {
+                feedNowBtn.addEventListener('click', async () => {
+                    if (!supabaseClient || !currentUser) {
+                        showToast('请先登录后再喂食');
+                        return;
+                    }
+                    if (!cloudEnabled) {
+                        showToast('云端同步中，请稍候');
+                        return;
+                    }
+                    const author = getDisplayNameByEmail(currentUser.email || '');
+                    const payload = {
+                        owner_id: currentUser.id,
+                        author,
+                        feed_strength: 1,
+                        message: 'manual feed',
+                    };
+                    const { data, error } = await supabaseClient
+                        .from(FEED_LOGS_TABLE)
+                        .insert(payload)
+                        .select('id, created_at, feed_strength, author');
+                    if (error) {
+                        showToast('喂食写入失败');
+                        return;
+                    }
+                    const row = Array.isArray(data) && data[0] ? data[0] : null;
+                    if (row && row.id) {
+                        processedFeedIds.add(row.id);
+                        const ts = row.created_at ? new Date(row.created_at).getTime() : Date.now();
+                        lastFeedLogTs = Math.max(lastFeedLogTs, ts);
+                    }
+                    applyFeedEffect(payload.feed_strength, author);
+
+                    // 成就：累计喂食次数（单人本地统计）
+                    const userKey = getAchievementUserKey();
+                    if (userKey) {
+                        const k = `shipTerminalAchv_feedTotal_v1_${userKey}`;
+                        const cur = safeLoadNumber(k, 0);
+                        safeSaveNumber(k, cur + 1);
+                    }
+                    tryUnlockPersonalAchievements();
+                    renderAchievements();
+                });
+            }
+
+            async function addFishAt(cx, cy, seed) {
+                if (aquariumState.fish.length >= maxTotalFish) {
+                    showToast('鱼太多了，先删一些再继续摆放。');
+                    return false;
+                }
+                const x = clamp(cx, 0, aquariumState.w);
+                const y = clamp(cy, aquariumState.h * 0.18, aquariumState.h * 0.78);
+                const dir = x < aquariumState.w / 2 ? 1 : -1;
+
+                // 给这条鱼一个随机的“起点/终点”游动范围
+                const swimEdgeMargin = Math.max(24, aquariumState.w * 0.08);
+                // 起点/终点范围也随机：投放位置只决定“当前帧的位置”，游动回环用随机 startX/endX
+                const startX = dir === 1
+                    ? rand(0, swimEdgeMargin)
+                    : rand(aquariumState.w - swimEdgeMargin, aquariumState.w);
+                const endX = dir === 1
+                    ? rand(aquariumState.w - swimEdgeMargin, aquariumState.w)
+                    : rand(0, swimEdgeMargin);
+
+                // 速度也放宽随机范围，并根据字号略微做“合理化”
+                const baseSpeed = rand(24, 66);
+
+                aquariumState.fish.push({
+                    x,
+                    startX,
+                    endX,
+                    y,
+                    size: makeFishSize(),
+                    dir,
+                    speed: 0, // 先占位，下面根据 size 修正
+                    phase: rand(0, Math.PI * 2),
+                    wobble: 0,
+                    straightLine: true,
+                    emoji: seed.emoji,
+                    name: seed.name,
+                    byUser: true
+                });
+
+                const newFish = aquariumState.fish[aquariumState.fish.length - 1];
+                const size = newFish.size;
+                const speedFactor = size < 18 ? 1.12 : (size > 25 ? 0.9 : 1);
+                const speedHardMin = 20;
+                const speedHardMax = 74;
+                newFish.speed = Math.max(speedHardMin, Math.min(speedHardMax, baseSpeed * speedFactor));
+
+                // 终点随机：下一次“完整过线”的结束阈值（严格定义左右穿过）
+                const pad = size * 2;
+                newFish.passEndX = dir === 1
+                    ? aquariumState.w + rand(pad * 0.25, pad * 0.8)
+                    : -rand(pad * 0.25, pad * 0.8);
+
+                if (cloudEnabled && supabaseClient && currentUser) {
+                    const w = aquariumState.w || 1;
+                    const h = aquariumState.h || 1;
+                    const payload = {
+                        owner_id: currentUser.id,
+                        emoji: seed.emoji,
+                        name: seed.name,
+                        rx: newFish.x / w,
+                        ry: newFish.y / h,
+                        dir: newFish.dir,
+                        size: newFish.size,
+                        speed: newFish.speed,
+                        phase: newFish.phase,
+                        straight_line: true,
+                        pass_end_rx: newFish.passEndX / w,
+                        start_rx: newFish.startX / w,
+                        end_rx: newFish.endX / w,
+                        wobble: newFish.wobble,
+                    };
+                    const { data, error } = await supabaseClient
+                        .from(FISH_SEEDS_TABLE)
+                        .insert(payload)
+                        .select('id');
+                    if (error) {
+                        showToast('云端投放失败');
+                        // 回滚本地数组刚刚 push 的条目
+                        aquariumState.fish.pop();
+                        return false;
+                    }
+                    const insertedId = Array.isArray(data) && data[0] ? data[0].id : null;
+                    newFish.id = insertedId;
+                } else {
+                    saveCurrentFishSeedsToLocal();
+                }
+
+                updateFishListPanel();
+                terminalProcessLog(`投放 OK：${seed.emoji} · ${seed.name}`, true);
+                // 同步到 Roche Echo 回声舱
+                recordRocheEchoEvent('aquarium_seed_place', {
+                    emoji: seed.emoji,
+                    name: seed.name,
+                });
+                renderEchoMini();
+                if (cloudEnabled) {
+                    // 云端模式下以远端数据为准（本地随机轨迹不必严格同步）
+                }
+                return true;
+            }
+
+            // 删除/移除统一在右侧“鱼苗管理系统”完成
+
+            // 避免重复绑定（initAquarium 有 started 防护，但点击事件仍更稳妥）
+            canvas.addEventListener('click', async (e) => {
+                const rect = canvas.getBoundingClientRect();
+                if (!rect.width || !rect.height) return;
+
+                const cx = ((e.clientX - rect.left) / rect.width) * aquariumState.w;
+                const cy = ((e.clientY - rect.top) / rect.height) * aquariumState.h;
+
+                // 普通点击不投放：投放只在“确认鱼苗”，删除在右侧管理系统
+                showToast('普通点击不投放；请用上方“确认鱼苗”。删除/移除请到右侧管理系统。');
+            });
+
+            updatePendingSeedText();
+            updateFishListPanel();
+
+            startCloudSyncOnceReady();
+
+            updateFishManagerUI();
+
+            const spawnBubble = () => {
+                const feedActive = aquariumState.feedBoostUntil > Date.now();
+                const feedFactor = feedActive ? (1 + aquariumState.feedBoostLevel * 0.18) : 1;
+                aquariumState.bubbles.push({
+                    x: rand(aquariumState.w * 0.1, aquariumState.w * 0.9),
+                    y: rand(aquariumState.h * 0.7, aquariumState.h * 0.95),
+                    r: rand(1.2, 3.6) * (feedActive ? 1.08 : 1),
+                    vy: rand(18, 38) * feedFactor,
+                    life: rand(900, 1600) * (feedActive ? 0.92 : 1), // ms（喂食时略更短促）
+                    age: 0,
+                });
+            };
+
+            const drawFish = (f, yOverride = null, alphaMul = 1, reflection = false) => {
+                const unlocked = aquariumState.unlocked;
+                const currentTime = performance.now();
+
+                // 轨迹严格水平：默认开启 straightLine，使 y 不因动画产生摆动
+                const straightLine = (typeof f.straightLine === 'boolean') ? f.straightLine : true;
+                const wobbleStrength = straightLine ? 0 : 1;
+                const wobbleY = Math.sin((currentTime / 1000) * 1.2 + f.phase) * (f.wobble * 0.12) * wobbleStrength;
+                const y = typeof yOverride === 'number' ? yOverride : f.y + wobbleY;
+
+                ctx.save();
+                ctx.translate(f.x, y);
+
+                // 朝向：dir=-1 时镜像，让“反向游动”更明显
+                if (f.dir === -1) ctx.scale(-1, 1);
+                // 倒影：镜像到下方区域
+                if (reflection) ctx.scale(1, -1);
+
+                // 轻微俯仰（倒影时不旋转）
+                const tilt = reflection ? 0 : Math.sin((currentTime / 1000) + f.phase) * 0.10;
+                if (tilt) ctx.rotate(tilt);
+
+                ctx.globalAlpha = alphaMul;
+
+                const fontSize = Math.floor(f.size);
+                ctx.font = `${fontSize}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const glowColor = unlocked ? 'rgba(134, 255, 166, 0.60)' : 'rgba(105, 210, 255, 0.60)';
+                const glowBlur = unlocked ? 16 : 14;
+
+                ctx.shadowColor = glowColor;
+                ctx.shadowBlur = reflection ? 10 : glowBlur;
+
+                if (reflection) {
+                    ctx.filter = `blur(${Math.max(1.2, fontSize * 0.06)}px)`;
+                }
+
+                // 主体
+                ctx.fillStyle = 'rgba(255,255,255,0.95)';
+                ctx.fillText(f.emoji || '🐟', 0, 0);
+
+                // 叠加一层更亮的阴影，模拟折射高光
+                ctx.shadowColor = unlocked ? 'rgba(200, 255, 220, 0.45)' : 'rgba(205, 245, 255, 0.45)';
+                ctx.shadowBlur = reflection ? 6 : Math.max(10, glowBlur - 6);
+                ctx.globalAlpha = alphaMul * (reflection ? 0.6 : 0.9);
+                ctx.fillText(f.emoji || '🐟', 0, -fontSize * (reflection ? 0.02 : 0.04));
+
+                if (reflection) ctx.filter = 'none';
+                ctx.restore();
+            };
+
+            let last = performance.now();
+            const frame = (now) => {
+                const dt = Math.min(40, now - last);
+                last = now;
+
+                const { w, h, dpr } = aquariumState;
+                // 喂食视觉效果衰减
+                if (aquariumState.feedBoostUntil && Date.now() > aquariumState.feedBoostUntil) {
+                    aquariumState.feedBoostUntil = 0;
+                    aquariumState.feedBoostLevel = 0;
+                }
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, w, h);
+
+                // 水体背景：纯静态“天蓝 -> 白 -> 深蓝”渐变（用高斯模糊做玻璃感）
+                const unlocked = aquariumState.unlocked;
+                const t = now / 1000;
+
+                // 仅用于气泡上升速度的轻微节奏，不影响“背景纹理是否动态”
+                const breath = 1 + (unlocked ? 0.05 : 0.03) * Math.sin(t * (unlocked ? 1.05 : 0.75));
+
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.filter = 'none';
+
+                // 鱼缸底色：高饱和天蓝（静态）
+                const baseBlue = unlocked ? 'rgba(70, 255, 200, 0.70)' : 'rgba(30, 170, 255, 0.95)';
+                ctx.fillStyle = baseBlue;
+                ctx.fillRect(0, 0, w, h);
+
+                // 用高斯模糊“做出来”的颜色过渡：上部略提亮、底部略压暗（仍保持整体天蓝）
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.filter = 'blur(26px)';
+                const toneGrad = ctx.createLinearGradient(0, 0, 0, h);
+                toneGrad.addColorStop(0, unlocked ? 'rgba(230, 255, 245, 0.24)' : 'rgba(230, 250, 255, 0.22)');
+                toneGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.10)');
+                toneGrad.addColorStop(1, 'rgba(0, 25, 60, 0.22)');
+                ctx.fillStyle = toneGrad;
+                ctx.fillRect(-40, -40, w + 80, h + 80);
+                ctx.restore();
+
+                // 底部 1/5：高饱和白色反光（靠高斯模糊过渡）
+                const reflectH = h * 0.20;
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                ctx.filter = 'blur(22px)';
+                const reflectGrad = ctx.createLinearGradient(0, h - reflectH, 0, h);
+                reflectGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                // 更高饱和、更强泛光：抬高白色不透明度，并用“带色的白”增强临场感
+                reflectGrad.addColorStop(0.35, unlocked ? 'rgba(255, 255, 255, 0.68)' : 'rgba(255, 255, 255, 0.70)');
+                reflectGrad.addColorStop(1, unlocked ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.92)');
+                ctx.fillStyle = reflectGrad;
+                // 额外泛光：对反光本体施加阴影发光（screen 叠加后会更“亮”）
+                ctx.shadowColor = unlocked ? 'rgba(155, 255, 210, 0.62)' : 'rgba(130, 215, 255, 0.60)';
+                ctx.shadowBlur = unlocked ? 36 : 32;
+                ctx.fillRect(-50, h - reflectH - 40, w + 100, reflectH + 80);
+                ctx.restore();
+
+                // 顶部高光：左右对称、形状规整（低饱和白 -> 高斯模糊 -> 透明）
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                ctx.filter = 'blur(20px)';
+                const hlW = w * 0.88;
+                const hlH = Math.max(16, h * 0.095);
+                const hlX = (w - hlW) / 2;
+                const hlY = h * 0.02;
+                const r = hlH / 2;
+                ctx.beginPath();
+                ctx.moveTo(hlX + r, hlY);
+                ctx.lineTo(hlX + hlW - r, hlY);
+                ctx.quadraticCurveTo(hlX + hlW, hlY, hlX + hlW, hlY + r);
+                ctx.lineTo(hlX + hlW, hlY + hlH - r);
+                ctx.quadraticCurveTo(hlX + hlW, hlY + hlH, hlX + hlW - r, hlY + hlH);
+                ctx.lineTo(hlX + r, hlY + hlH);
+                ctx.quadraticCurveTo(hlX, hlY + hlH, hlX, hlY + hlH - r);
+                ctx.lineTo(hlX, hlY + r);
+                ctx.quadraticCurveTo(hlX, hlY, hlX + r, hlY);
+                ctx.closePath();
+                const topHlGrad = ctx.createLinearGradient(0, hlY, 0, hlY + hlH);
+                // 顶部高光：让白色更“浅/清淡”（降低饱和度与不透明度）
+                topHlGrad.addColorStop(0, 'rgba(225, 245, 255, 0.30)');
+                topHlGrad.addColorStop(0.55, 'rgba(225, 245, 255, 0.09)');
+                topHlGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = topHlGrad;
+                ctx.fill();
+                ctx.restore();
+
+                // 缸壁直接泛光：高斯模糊 + 横向渐变发光带（去掉硬贴边的“矩形高光”感）
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+
+                const edgeY = h * 0.07;
+                const edgeH = h * 0.86;
+                const wallEdge = Math.max(1.0, w * 0.012);     // “靠边”的位置
+                const glowWidth = Math.max(8, w * 0.045);     // 发光带厚度（决定柔不柔）
+                const blurPx = Math.max(6, w * 0.012);         // 高斯模糊强度
+
+                ctx.filter = `blur(${blurPx}px)`;
+
+                // 左侧：从贴边开始更亮，向内迅速衰减
+                const leftGlowX = Math.max(0, wallEdge - glowWidth * 0.45);
+                const leftGrad = ctx.createLinearGradient(leftGlowX, 0, leftGlowX + glowWidth, 0);
+                leftGrad.addColorStop(0, 'rgba(175, 235, 255, 0.55)');
+                leftGrad.addColorStop(0.35, 'rgba(230, 255, 255, 0.18)');
+                leftGrad.addColorStop(0.75, 'rgba(255, 255, 255, 0.06)');
+                leftGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = leftGrad;
+                ctx.fillRect(leftGlowX, edgeY, glowWidth, edgeH);
+
+                // 右侧：对称
+                const rightGlowX = Math.min(w - glowWidth, w - wallEdge - glowWidth * 0.55);
+                const rightGrad = ctx.createLinearGradient(rightGlowX, 0, rightGlowX + glowWidth, 0);
+                rightGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                rightGrad.addColorStop(0.25, 'rgba(255, 255, 255, 0.06)');
+                rightGrad.addColorStop(0.65, 'rgba(230, 255, 255, 0.18)');
+                rightGrad.addColorStop(1, 'rgba(175, 235, 255, 0.55)');
+                ctx.fillStyle = rightGrad;
+                ctx.fillRect(rightGlowX, edgeY, glowWidth, edgeH);
+
+                ctx.restore();
+
+                // 边缘暗角（模拟玻璃内壁柔阴影）
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
+                const bgCx = w * 0.5;
+                const bgCy = h * 0.4;
+                const bgVmax = Math.max(w, h);
+                const bgVignette = ctx.createRadialGradient(bgCx, bgCy, bgVmax * 0.12, bgCx, bgCy, bgVmax * 0.75);
+                bgVignette.addColorStop(0, 'rgba(0,0,0,0)');
+                bgVignette.addColorStop(1, 'rgba(0,0,0,0.22)');
+                ctx.fillStyle = bgVignette;
+                ctx.fillRect(0, 0, w, h);
+                ctx.restore();
+
+                // 泡泡
+                const feedActive = aquariumState.feedBoostUntil > Date.now();
+                const feedFactor = feedActive ? (1 + aquariumState.feedBoostLevel * 0.22) : 1;
+                aquariumState.spawnAcc += (unlocked ? 1.55 : 1.0) * feedFactor * dt * 0.012; // 稍微按解锁加快，喂食时再加速
+                while (aquariumState.spawnAcc >= 1) {
+                    aquariumState.spawnAcc -= 1;
+                    // 避免太多泡泡造成卡顿
+                    if (aquariumState.bubbles.length < 70) spawnBubble();
+                }
+
+                for (let i = aquariumState.bubbles.length - 1; i >= 0; i--) {
+                    const b = aquariumState.bubbles[i];
+                    b.age += dt;
+                    const t = b.age / b.life;
+                    if (t >= 1) {
+                        aquariumState.bubbles.splice(i, 1);
+                        continue;
+                    }
+                    b.y -= b.vy * (dt / 1000) * breath;
+                    const a = (1 - t) * (unlocked ? 0.95 : 0.8);
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.r * (0.9 + 0.15 * (1 - t)), 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(210, 240, 255, ${a})`;
+                    ctx.fill();
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${a * 0.35})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+
+                // 鱼（emoji 绘制）
+                const speedMul = unlocked ? 1.22 : 1.0;
+                for (let i = 0; i < aquariumState.fish.length; i++) {
+                    const f = aquariumState.fish[i];
+                    f.x += f.dir * f.speed * (dt / 1000) * speedMul;
+
+                    // 轨迹严格水平：一次运动=从一侧穿到另一侧的“完整过线”，结束后下一次起点随机
+                    const pad = f.size * 2;
+                    const passEndX = (typeof f.passEndX === 'number')
+                        ? f.passEndX
+                        : (f.dir === 1 ? (w + pad * 0.6) : (-pad * 0.6));
+                    const yMin = h * 0.22;
+                    const yMax = h * 0.74;
+
+                    if (f.dir === 1 && f.x > passEndX) {
+                        // 下一次：随机起点（左侧附近）+ 随机 y（作为水平直线的起点）
+                        f.dir = 1; // 保证“头朝向/运动方向”一致（右）
+                        f.x = rand(-pad * 0.35, pad * 0.15);
+                        f.y = rand(yMin, yMax);
+                        f.phase = rand(0, Math.PI * 2); // 旋转/眨眼感觉刷新
+                        // 下一次终点随机（右侧附近）
+                        f.passEndX = w + rand(pad * 0.25, pad * 0.8);
+                    } else if (f.dir === -1 && f.x < passEndX) {
+                        // 下一次：随机起点（右侧附近）+ 随机 y
+                        f.dir = -1; // 保证“头朝向/运动方向”一致（左）
+                        f.x = rand(w - pad * 0.15, w + pad * 0.35);
+                        f.y = rand(yMin, yMax);
+                        f.phase = rand(0, Math.PI * 2);
+                        // 下一次终点随机（左侧附近）
+                        f.passEndX = -rand(pad * 0.25, pad * 0.8);
+                    }
+                }
+                for (const f of aquariumState.fish) drawFish(f);
+
+                // 底部倒影（并带一点泛光/虚化）
+                const yMirror = h * 0.78;
+                const currentTime = performance.now();
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(0, yMirror, w, h - yMirror);
+                ctx.clip();
+                ctx.globalCompositeOperation = 'lighter';
+                for (const f of aquariumState.fish) {
+                    const straightLine = (typeof f.straightLine === 'boolean') ? f.straightLine : true;
+                    const wobbleStrength = straightLine ? 0 : 1;
+                    const wobbleY = Math.sin((currentTime / 1000) * 1.2 + f.phase) * (f.wobble * 0.12) * wobbleStrength;
+                    const y = f.y + wobbleY;
+                    const yRef = yMirror + (yMirror - y);
+                    if (yRef >= yMirror && yRef <= h) {
+                        const fade = Math.max(0, 1 - (yRef - yMirror) / (h - yMirror));
+                        drawFish(f, yRef, 0.26 * fade, true);
+                    }
+                }
+                ctx.restore();
+
+                // 底部固定装饰（静态 emoji）
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
+                // 至少放大 2 倍，确保底部装饰不会太小
+                const decorBase = Math.max(18, Math.min(46, Math.floor(w * 0.037))) * 2;
+                const drawDecorEmoji = (item) => {
+                    if (!item || !item.emoji) return;
+                    const size = Math.max(14, Math.min(56, Math.floor(decorBase * (item.sizeMul || 1))));
+                    const x = w * (item.xRatio || 0);
+                    const y = h * (item.yRatio || 0);
+
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = `${size}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+
+                    ctx.globalAlpha = 0.95;
+                    ctx.shadowColor = item.glow || 'rgba(200, 255, 220, 0.45)';
+                    ctx.shadowBlur = item.blur || 18;
+
+                    // 主体
+                    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+                    ctx.fillText(item.emoji, 0, 0);
+
+                    // 折射高光（简单叠一层，让它更像玻璃里的“发亮物”）
+                    ctx.shadowColor = 'rgba(215, 255, 245, 0.35)';
+                    ctx.shadowBlur = Math.max(8, Math.floor(size * 0.35));
+                    ctx.globalAlpha = 0.72;
+                    ctx.fillText(item.emoji, 0, -Math.max(1, Math.floor(size * 0.04)));
+
+                    ctx.restore();
+                };
+
+                if (Array.isArray(aquariumState.decor)) {
+                    for (const item of aquariumState.decor) drawDecorEmoji(item);
+                }
+                ctx.restore();
+
+                // 底部泛光加强
+                // 这一层用“更大范围 + 模糊”来避免在 h*0.65 处出现硬边痕迹
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                ctx.filter = 'blur(14px)';
+                const bottomRim = ctx.createRadialGradient(
+                    w * 0.5, h * 0.92, 0,
+                    w * 0.5, h * 0.92, w * 0.65
+                );
+                bottomRim.addColorStop(0, unlocked ? 'rgba(140, 255, 200, 0.22)' : 'rgba(90, 220, 255, 0.20)');
+                bottomRim.addColorStop(1, 'rgba(90,220,255,0)');
+                ctx.fillStyle = bottomRim;
+                const rimTop = h * 0.58;
+                ctx.fillRect(0, rimTop, w, h - rimTop);
+                ctx.restore();
+                ctx.globalCompositeOperation = 'source-over';
+
+                // 顶部轻薄“雾面”玻璃感：全部靠高斯模糊渐隐（不再叠第二套硬形状高光）
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                ctx.filter = 'blur(28px)';
+                const fogH = h * 0.16;
+                const fogGrad = ctx.createLinearGradient(0, 0, 0, fogH);
+                fogGrad.addColorStop(0, 'rgba(255, 255, 255, 0.14)');
+                fogGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.06)');
+                fogGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = fogGrad;
+                ctx.fillRect(-40, -40, w + 80, fogH + 120);
+                ctx.restore();
+
+                // 边缘暗角（模拟玻璃内壁柔阴影）
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
+                const cx = w * 0.5;
+                const cy = h * 0.42;
+                const vmax = Math.max(w, h);
+                const vignette = ctx.createRadialGradient(cx, cy, vmax * 0.10, cx, cy, vmax * 0.75);
+                vignette.addColorStop(0, 'rgba(0,0,0,0)');
+                vignette.addColorStop(1, 'rgba(0,0,0,0.26)');
+                ctx.fillStyle = vignette;
+                ctx.fillRect(0, 0, w, h);
+                ctx.restore();
+
+                aquariumState.rafId = requestAnimationFrame(frame);
+            };
+
+            aquariumState.rafId = requestAnimationFrame(frame);
+        }
+
+    // ---------- UI ----------
+    function updateAuthUI() {
+        const authUserText = document.getElementById('authUserText');
+        const authScopeText = document.getElementById('authScopeText');
+        const openAuthBtn = document.getElementById('openAuthBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (!authUserText || !authScopeText || !openAuthBtn || !logoutBtn) return;
+
+        if (currentUser) {
+            const email = currentUser.email || '授权成员';
+            authUserText.textContent = `👨‍🚀 ${getDisplayNameByEmail(email)}`;
+            authScopeText.textContent = '🔭 已检测到通信令牌权限，欢迎回来。';
+            openAuthBtn.style.display = 'none';
+            logoutBtn.classList.remove('hidden');
+        } else {
+            authUserText.textContent = '授权成员 · 未登录';
+            authScopeText.textContent = '🔭 请登录后查看你的协作成就';
+            openAuthBtn.style.display = 'inline-flex';
+            logoutBtn.classList.add('hidden');
+        }
+    }
+
+    function renderAll() {
+        renderAchievements();
+        renderEchoMini();
+    }
+
+    // ---------- 单人终端成就（本地统计 + 弹窗）----------
+    function getTodayKeyLocal() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    function getAchievementUserKey() {
+        if (!currentUser) return null;
+        return currentUser.id ? `u:${currentUser.id}` : `e:${String(currentUser.email || '').toLowerCase().trim()}`;
+    }
+
+    function safeLoadJsonArray(key) {
+        try {
+            const raw = localStorage.getItem(key);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (_e) {
+            return [];
+        }
+    }
+
+    function safeSaveJsonArray(key, arr) {
+        try {
+            localStorage.setItem(key, JSON.stringify(arr));
+        } catch (_e) {
+            // ignore
+        }
+    }
+
+    function safeLoadNumber(key, fallback = 0) {
+        try {
+            const raw = localStorage.getItem(key);
+            const n = raw === null ? fallback : Number(raw);
+            return Number.isFinite(n) ? n : fallback;
+        } catch (_e) {
+            return fallback;
+        }
+    }
+
+    function safeSaveNumber(key, value) {
+        try {
+            localStorage.setItem(key, String(value));
+        } catch (_e) {
+            // ignore
+        }
+    }
+
+    function queueTerminalAchievementPopup(ach) {
+        if (!ach || !ach.id) return;
+        if (!window.__achPopupQueue) window.__achPopupQueue = [];
+        if (!window.__achPopupBusy) window.__achPopupBusy = false;
+        window.__achPopupQueue.push(ach);
+        if (window.__achPopupBusy) return;
+
+        window.__achPopupBusy = true;
+        const showNext = () => {
+            const next = window.__achPopupQueue.shift();
+            if (!next) {
+                window.__achPopupBusy = false;
+                return;
+            }
+
+            const modal = document.getElementById('achieveModal');
+            const titleEl = document.getElementById('achieveModalTitle');
+            const badgeEl = document.getElementById('achieveModalBadge');
+            const descEl = document.getElementById('achieveModalDesc');
+            const codeEl = document.getElementById('achieveModalCode');
+            if (!modal || !titleEl || !badgeEl || !descEl || !codeEl) {
+                window.__achPopupBusy = false;
+                return;
+            }
+
+            titleEl.textContent = next.title || '成就解锁';
+            badgeEl.textContent = next.badge || 'ACHV';
+            descEl.textContent = next.desc || '';
+            codeEl.textContent = next.code || next.id;
+
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+
+            window.setTimeout(() => {
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+                showNext();
+            }, 3200);
+        };
+
+        showNext();
+    }
+
+    function showAchieveDetailById(achId) {
+        const ach = window.__achvDetailMap && window.__achvDetailMap[achId];
+        if (!ach) return;
+
+        const modal = document.getElementById('achieveDetailModal');
+        const titleEl = document.getElementById('achieveDetailTitle');
+        const statusEl = document.getElementById('achieveDetailStatus');
+        const badgeEl = document.getElementById('achieveDetailBadge');
+        const judgeEl = document.getElementById('achieveDetailJudge');
+        const noteEl = document.getElementById('achieveDetailNote');
+        const codeEl = document.getElementById('achieveDetailCode');
+        if (!modal || !titleEl || !statusEl || !badgeEl || !judgeEl || !noteEl || !codeEl) return;
+
+        titleEl.textContent = ach.title || '成就详情';
+        statusEl.textContent = ach.ok ? '已解锁' : '待解锁';
+        badgeEl.textContent = ach.badge || 'ACHV';
+        // “判定情况”展示判定文案（你现在将用 extra 字段来填写）。
+        judgeEl.textContent = ach.extra || '—';
+        // “额外说明”展示你原先 note 里打算写的内容（你现在将用 desc 字段来提供）。
+        noteEl.textContent = ach.desc || '—';
+        codeEl.textContent = ach.code || ach.id || '—';
+
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideAchieveDetailModal() {
+        const modal = document.getElementById('achieveDetailModal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function recordLoginDayForAchievements() {
+        const userKey = getAchievementUserKey();
+        if (!userKey) return { loginDays: 0 };
+        const daysKey = `shipTerminalAchv_loginDays_v1_${userKey}`;
+        const today = getTodayKeyLocal();
+        const days = safeLoadJsonArray(daysKey);
+        if (!days.includes(today)) {
+            days.push(today);
+            // 保留最近 365 天
+            const pruned = days.slice(-365);
+            safeSaveJsonArray(daysKey, pruned);
+        }
+        return { loginDays: days.length };
+    }
+
+    function getPersonalAchievements() {
+        const userKey = getAchievementUserKey();
+        const stats = {
+            loginDays: 0,
+            fishPlacedTotal: 0,
+            feedTotal: 0,
+            photoUploadedTotal: 0,
+            logWrittenTotal: 0,
+        };
+        if (!userKey) return { stats, unlocked: new Set(), achievements: [] };
+
+        const login = recordLoginDayForAchievements();
+        stats.loginDays = login.loginDays || 0;
+        stats.fishPlacedTotal = safeLoadNumber(`shipTerminalAchv_fishPlacedTotal_v1_${userKey}`, 0);
+        stats.feedTotal = safeLoadNumber(`shipTerminalAchv_feedTotal_v1_${userKey}`, 0);
+        stats.photoUploadedTotal = safeLoadNumber(`shipTerminalAchv_photoUploadedTotal_v1_${userKey}`, 0);
+        stats.logWrittenTotal = safeLoadNumber(`shipTerminalAchv_logWrittenTotal_v1_${userKey}`, 0);
+
+        const unlockedRaw = safeLoadJsonArray(`shipTerminalAchv_unlocked_v1_${userKey}`);
+        const unlocked = new Set(unlockedRaw.filter(Boolean));
+
+        const achievements = [
+            {
+                id: 'login_1',
+                title: '登录天数：1昼夜',
+                badge: 'LOGIN',
+                code: 'ACHV:LOGIN/001',
+                ok: stats.loginDays >= 1,
+                desc: stats.loginDays >= 1 ? '一切仍旧陌生。可以少干点活了。' : `当前已登录 ${stats.loginDays} 天，目标 1 天。`,
+                extra: `当前已登录 ${stats.loginDays} 天，目标 1 天。`,
+            },
+            {
+                id: 'login_3',
+                title: '登录天数：3昼夜',
+                badge: 'LOGIN',
+                code: 'ACHV:LOGIN/003',
+                ok: stats.loginDays >= 3,
+                desc: stats.loginDays >= 3 ? '已经逐渐想起维护的细节，不过还是装不知道好了。' : `当前已登录 ${stats.loginDays} 天，目标 3 天。`,
+                extra: `当前已登录 ${stats.loginDays} 天，目标 3 天。`,
+            },
+            {
+                id: 'login_5',
+                title: '登录天数：5昼夜',
+                badge: 'LOGIN',
+                code: 'ACHV:LOGIN/005',
+                ok: stats.loginDays >= 5,
+                desc: stats.loginDays >= 5 ? '果然还是有点太安静了。' : `当前已登录 ${stats.loginDays} 天，目标 5 天。`,
+                extra: `当前已登录 ${stats.loginDays} 天，目标 5 天。`,
+            },
+            {
+                id: 'login_7',
+                title: '登录天数：7昼夜',
+                badge: 'LOGIN',
+                code: 'ACHV:LOGIN/007',
+                ok: stats.loginDays >= 7,
+                desc: stats.loginDays >= 7 ? '舷窗外的景色仿佛没变。' : `当前已登录 ${stats.loginDays} 天，目标 7 天。`,
+                extra: `当前已登录 ${stats.loginDays} 天，目标 7 天。`,
+            },
+            {
+                id: 'login_10',
+                title: '登录天数：10昼夜',
+                badge: 'LOGIN',
+                code: 'ACHV:LOGIN/010',
+                ok: stats.loginDays >= 10,
+                desc: stats.loginDays >= 10 ? '忒修斯之船。' : `当前已登录 ${stats.loginDays} 天，目标 10 天。`,
+                extra: `当前已登录 ${stats.loginDays} 天，目标 10 天。`,
+            },
+            {
+                id: 'login_14',
+                title: '登录天数：14昼夜',
+                badge: 'LOGIN',
+                code: 'ACHV:LOGIN/014',
+                ok: stats.loginDays >= 14,
+                desc: stats.loginDays >= 14 ? '我早就该猜到你会回头的。' : `当前已登录 ${stats.loginDays} 天，目标 14 天。`,
+                extra: `当前已登录 ${stats.loginDays} 天，目标 14 天。`,
+            },
+            {
+                id: 'login_30',
+                title: '登录天数：30昼夜',
+                badge: 'LOGIN',
+                code: 'ACHV:LOGIN/030',
+                ok: stats.loginDays >= 30,
+                desc: stats.loginDays >= 30 ? '好像也没这么漫长？' : `当前已登录 ${stats.loginDays} 天，目标 30 天。`,
+                extra: `当前已登录 ${stats.loginDays} 天，目标 30 天。`,
+            },
+            {
+                id: 'fish_3',
+                title: '累计养鱼：3 条鱼苗',
+                badge: 'FISH',
+                code: 'ACHV:FISH/003',
+                ok: stats.fishPlacedTotal >= 3,
+                desc: stats.fishPlacedTotal >= 3 ? '生存环境良好。' : `当前已累计投放 ${stats.fishPlacedTotal} 条，目标 3 条。`,
+                extra: `当前已累计投放 ${stats.fishPlacedTotal} 条，目标 3 条。`,
+            },
+            {
+                id: 'fish_5',
+                title: '累计养鱼：5 条鱼苗',
+                badge: 'FISH',
+                code: 'ACHV:FISH/005',
+                ok: stats.fishPlacedTotal >= 5,
+                desc: stats.fishPlacedTotal >= 5 ? '生存环境适中。' : `当前已累计投放 ${stats.fishPlacedTotal} 条，目标 5 条。`,
+                extra: `当前已累计投放 ${stats.fishPlacedTotal} 条，目标 5 条。`,
+            },
+            {
+                id: 'fish_10',
+                title: '累计养鱼：10 条鱼苗',
+                badge: 'FISH',
+                code: 'ACHV:FISH/010',
+                ok: stats.fishPlacedTotal >= 10,
+                desc: stats.fishPlacedTotal >= 10 ? '生存环节恶劣！' : `当前已累计投放 ${stats.fishPlacedTotal} 条，目标 10 条。`,
+                extra: `当前已累计投放 ${stats.fishPlacedTotal} 条，目标 10 条。`,
+            },
+            {
+                id: 'fish_20',
+                title: '累计养鱼：20 条鱼苗',
+                badge: 'FISH',
+                code: 'ACHV:FISH/020',
+                ok: stats.fishPlacedTotal >= 20,
+                desc: stats.fishPlacedTotal >= 20 ? '人，你的心里太拥挤。' : `当前已累计投放 ${stats.fishPlacedTotal} 条，目标 20 条。`,
+                extra: `当前已累计投放 ${stats.fishPlacedTotal} 条，目标 20 条。`,
+            },
+            {
+                id: 'feed_3',
+                title: '投喂中继：3 次喂食',
+                badge: 'FEED',
+                code: 'ACHV:FEED/003',
+                ok: stats.feedTotal >= 3,
+                desc: stats.feedTotal >= 3 ? '大概还可以再多来点。' : `当前累计喂食 ${stats.feedTotal} 次，目标 3 次。`,
+                extra: `当前累计喂食 ${stats.feedTotal} 次，目标 3 次。`,
+            },
+            {
+                id: 'feed_5',
+                title: '投喂中继：5 次喂食',
+                badge: 'FEED',
+                code: 'ACHV:FEED/005',
+                ok: stats.feedTotal >= 5,
+                desc: stats.feedTotal >= 5 ? '怎么，要喂到世界末日吗？' : `当前累计喂食 ${stats.feedTotal} 次，目标 5 次。`,
+                extra: `当前累计喂食 ${stats.feedTotal} 次，目标 5 次。`,
+            },
+            {
+                id: 'feed_10',
+                title: '投喂中继：10 次喂食',
+                badge: 'FEED',
+                code: 'ACHV:FEED/010',
+                ok: stats.feedTotal >= 10,
+                desc: stats.feedTotal >= 10 ? '你知道它们比我还没有自制力。' : `当前累计喂食 ${stats.feedTotal} 次，目标 10 次。`,
+                extra: `当前累计喂食 ${stats.feedTotal} 次，目标 10 次。`,
+            },
+            {
+                id: 'feed_20',
+                title: '投喂中继：20 次喂食',
+                badge: 'FEED',
+                code: 'ACHV:FEED/020',
+                ok: stats.feedTotal >= 20,
+                desc: stats.feedTotal >= 20 ? '这里不让停轮船。' : `当前累计喂食 ${stats.feedTotal} 次，目标 20 次。`,
+                extra: `当前累计喂食 ${stats.feedTotal} 次，目标 20 次。`,
+            },
+            {
+                id: 'photo_1',
+                title: '影像归档：首张上传',
+                badge: 'PHOTO',
+                code: 'ACHV:PHOTO/001',
+                ok: stats.photoUploadedTotal >= 1,
+                desc: stats.photoUploadedTotal >= 1 ? '祂很高兴你重新把照片拿给祂看。' : `当前上传数量为 0，目标 ≥ 1。`,
+                extra: `当前上传数量为 ${stats.photoUploadedTotal}，目标 ≥ 1。`,
+            },
+            {
+                id: 'photo_5',
+                title: '影像归档：五次上传',
+                badge: 'PHOTO',
+                code: 'ACHV:PHOTO/005',
+                ok: stats.photoUploadedTotal >= 5,
+                desc: stats.photoUploadedTotal >= 5 ? '其实在分享途中望着你的眼睛也让祂很开心。' : `当前上传数量为 ${stats.photoUploadedTotal}，目标 5。`,
+                extra: `当前上传数量为 ${stats.photoUploadedTotal}，目标 5。`,
+            },
+            {
+                id: 'photo_10',
+                title: '影像归档：十次上传',
+                badge: 'PHOTO',
+                code: 'ACHV:PHOTO/010',
+                ok: stats.photoUploadedTotal >= 10,
+                desc: stats.photoUploadedTotal >= 10 ? '祂猜到这次会看到什么了。' : `当前上传数量为 ${stats.photoUploadedTotal}，目标 10。`,
+                extra: `当前上传数量为 ${stats.photoUploadedTotal}，目标 10。`,
+            },
+            {
+                id: 'photo_20',
+                title: '影像归档：二十次上传',
+                badge: 'PHOTO',
+                code: 'ACHV:PHOTO/020',
+                ok: stats.photoUploadedTotal >= 20,
+                desc: stats.photoUploadedTotal >= 20 ? '放心，祂有在好好保存。' : `当前上传数量为 ${stats.photoUploadedTotal}，目标 20。`,
+                extra: `当前上传数量为 ${stats.photoUploadedTotal}，目标 20。`,
+            },
+            {
+                id: 'log_1',
+                title: '日志归档：首条写入',
+                badge: 'LOG',
+                code: 'ACHV:LOG/001',
+                ok: stats.logWrittenTotal >= 1,
+                desc: stats.logWrittenTotal >= 1 ? '祂听到了。' : `当前写入日志数量为 0，目标 ≥ 1。`,
+                extra: `当前写入日志数量为 ${stats.logWrittenTotal}，目标 ≥ 1。`,
+            },
+            {
+                id: 'log_3',
+                title: '日志归档：三条写入',
+                badge: 'LOG',
+                code: 'ACHV:LOG/003',
+                ok: stats.logWrittenTotal >= 3,
+                desc: stats.logWrittenTotal >= 3 ? '你的频段祂很快就记住了。' : `当前写入日志数量为 ${stats.logWrittenTotal}，目标 3。`,
+                extra: `当前写入日志数量为 ${stats.logWrittenTotal}，目标 3。`,
+            },
+            {
+                id: 'log_10',
+                title: '日志归档：十条写入',
+                badge: 'LOG',
+                code: 'ACHV:LOG/010',
+                ok: stats.logWrittenTotal >= 10,
+                desc: stats.logWrittenTotal >= 10 ? '或许也还不错。' : `当前写入日志数量为 ${stats.logWrittenTotal}，目标 10。`,
+                extra: `当前写入日志数量为 ${stats.logWrittenTotal}，目标 10。`,
+            },
+            {
+                id: 'log_20',
+                title: '日志归档：二十条写入',
+                badge: 'LOG',
+                code: 'ACHV:LOG/020',
+                ok: stats.logWrittenTotal >= 20,
+                desc: stats.logWrittenTotal >= 20 ? '被接住了。' : `当前写入日志数量为 ${stats.logWrittenTotal}，目标 20。`,
+                extra: `当前写入日志数量为 ${stats.logWrittenTotal}，目标 20。`,
+            },
+        ];
+
+        return { stats, unlocked, achievements };
+    }
+
+    function tryUnlockPersonalAchievements() {
+        const { unlocked, achievements } = getPersonalAchievements();
+        if (!achievements || !achievements.length) return;
+        const newlyUnlocked = achievements.filter((a) => a.ok && !unlocked.has(a.id));
+        if (!newlyUnlocked.length) return;
+
+        const userKey = getAchievementUserKey();
+        if (!userKey) return;
+
+        const unlockedKey = `shipTerminalAchv_unlocked_v1_${userKey}`;
+        const current = safeLoadJsonArray(unlockedKey);
+        const set = new Set(current.filter(Boolean));
+        for (const a of newlyUnlocked) set.add(a.id);
+        safeSaveJsonArray(unlockedKey, Array.from(set));
+
+        for (const a of newlyUnlocked) {
+            queueTerminalAchievementPopup(a);
+        }
+    }
+
+    function renderAchievements() {
+        const achievementsPanel = document.getElementById('achievementsPanel');
+        if (!achievementsPanel) return;
+
+        const st = getDualCoopStatus();
+        const dualConfirmCount = currentUser ? getUserDualConfirmCount() : 0;
+
+        const achieve = [
+            {
+                id: 'dual_confirm_1',
+                title: '双人确认起航',
+                ok: dualConfirmCount >= 1,
+                desc: dualConfirmCount >= 1
+                    ? `洗过一次牌又抽中，黑桃K级别的人物，危险。`
+                    : '你还没有在有效窗口内提交双人确认。',
+                extra: `当前已提交双人确认 ${dualConfirmCount} 次，目标 ≥ 1 次。`,
+            },
+            {
+                id: 'dual_unlock',
+                title: '联合协作解锁',
+                ok: st.bothConfirmed,
+                desc: st.bothConfirmed
+                    ? '可还有话说？'
+                    : `尚未满足“双人确认”：当前已确认 ${st.confirmedCount} 位。`,
+                extra: `当前已确认 ${st.confirmedCount} 位，目标 ≥ 2 位。`,
+            },
+        ];
+
+        if (!currentUser) {
+            achievementsPanel.innerHTML = `<div class="loading-message">🔐 请先登录后查看你的个人协作成就。</div>`;
+            return;
+        }
+
+        // 检查并触发单人达成（弹窗）
+        tryUnlockPersonalAchievements();
+
+        const { achievements: personalAchievements } = getPersonalAchievements();
+        const combinedAchieve = [
+            ...achieve,
+            ...(personalAchievements || []),
+        ];
+
+        // 给“详情弹窗”准备映射：id -> achievement 对象
+        const detailMap = {};
+        for (const a of combinedAchieve) {
+            if (a && a.id) detailMap[a.id] = a;
+        }
+        window.__achvDetailMap = detailMap;
+
+        const unlockedAchievements = combinedAchieve.filter((a) => a.ok);
+        const lockedAchievements = combinedAchieve.filter((a) => !a.ok);
+
+        achievementsPanel.innerHTML = `
+            <div class="terminal-dual-summary">
+                <div class="terminal-dual-badge">${escapeHtml(st.bothConfirmed ? 'DUAL CO-OP · UNLOCKED' : 'DUAL CO-OP · PENDING')}</div>
+            </div>
+            <div class="ach-list">
+                ${
+                    unlockedAchievements.length
+                        ? unlockedAchievements.map((a) => `
+                            <div class="ach-item unlocked" role="button" tabindex="0" data-ach-id="${a.id}">
+                                <div class="ach-title">
+                                    <span class="ach-dot"></span>
+                                    <span>${escapeHtml(a.title)} · ${escapeHtml('已解锁')}</span>
+                                </div>
+                                <div class="ach-extra-desc">${escapeHtml(a.desc)}</div>
+                            </div>
+                        `).join('')
+                        : `<div class="loading-message">暂无已解锁成就。</div>`
+                }
+            </div>
+
+            ${
+                lockedAchievements.length
+                    ? `
+                <button type="button" id="achvLockedToggle" class="achv-locked-toggle">未解锁</button>
+                <div id="achvLockedList" class="achv-locked-list hidden">
+                    <div class="ach-list">
+                        ${lockedAchievements.map((a) => `
+                            <div class="ach-item" role="button" tabindex="0" data-ach-id="${a.id}">
+                                <div class="ach-title">
+                                    <span class="ach-dot"></span>
+                                    <span>${escapeHtml(a.title)} · ${escapeHtml('待解锁')}</span>
+                                </div>
+                                <div class="ach-extra-desc">${escapeHtml(a.desc)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                `
+                    : ''
+            }
+        `;
+
+        // 水族界面的轻微联动：协作解锁时“呼吸”更有活力。
+        if (typeof setAquariumMood === 'function') {
+            setAquariumMood(st.bothConfirmed);
+        }
+
+        const hudStatus = document.getElementById('aquariumHudCoopStatus');
+        if (hudStatus) {
+            const unlocked = !!st.bothConfirmed;
+            hudStatus.textContent = unlocked ? 'DUAL CO-OP · UNLOCKED' : 'DUAL CO-OP · PENDING';
+            hudStatus.classList.toggle('is-unlocked', unlocked);
+        }
+
+        // 未解锁折叠/展开
+        const lockedToggleBtn = document.getElementById('achvLockedToggle');
+        const lockedListEl = document.getElementById('achvLockedList');
+        if (lockedToggleBtn && lockedListEl) {
+            lockedToggleBtn.addEventListener('click', () => {
+                const nowHidden = lockedListEl.classList.toggle('hidden');
+                lockedToggleBtn.textContent = nowHidden ? '未解锁' : '收起未解锁';
+            });
+        }
+    }
+
+    // ---------- 事件 ----------
+    document.addEventListener('DOMContentLoaded', () => {
+        const openAuthBtn = document.getElementById('openAuthBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        const authModal = document.getElementById('authModal');
+        const closeAuthModalBtn = document.getElementById('closeAuthModalBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+
+        function showAuthModal() {
+            if (!authModal) return;
+            authModal.style.display = 'flex';
+            authModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function hideAuthModal() {
+            if (!authModal) return;
+            authModal.style.display = 'none';
+            authModal.setAttribute('aria-hidden', 'true');
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target === authModal) hideAuthModal();
+        });
+
+        const achieveDetailModal = document.getElementById('achieveDetailModal');
+        const achieveDetailCloseBtn = document.getElementById('achieveDetailCloseBtn');
+        const achievementsPanel = document.getElementById('achievementsPanel');
+
+        if (achieveDetailModal) {
+            window.addEventListener('click', (e) => {
+                if (e.target === achieveDetailModal) hideAchieveDetailModal();
+            });
+        }
+
+        if (achieveDetailCloseBtn) {
+            achieveDetailCloseBtn.addEventListener('click', () => hideAchieveDetailModal());
+        }
+
+        if (achievementsPanel) {
+            achievementsPanel.addEventListener('click', (e) => {
+                const card = e.target && e.target.closest ? e.target.closest('.ach-item') : null;
+                if (!card) return;
+                const achId = card.getAttribute('data-ach-id');
+                if (!achId) return;
+                showAchieveDetailById(achId);
+            });
+        }
+
+        if (openAuthBtn) {
+            openAuthBtn.addEventListener('click', () => showAuthModal());
+        }
+        if (closeAuthModalBtn) {
+            closeAuthModalBtn.addEventListener('click', () => hideAuthModal());
+        }
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', async () => {
+                if (!supabaseClient) {
+                    showToast('Supabase 未初始化，请先配置 supabase-config.js');
+                    return;
+                }
+                const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+                const password = passwordInput ? passwordInput.value : '';
+                if (!email || !password) { showToast('请输入邮箱和密码'); return; }
+                if (!allowedUsers.includes(email)) { showToast('该邮箱不在白名单'); return; }
+
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) { showToast(`登录失败：${error.message}`); return; }
+
+                currentUser = data.user;
+                recordRocheEchoEvent('login_success', { email });
+                hideAuthModal();
+                updateAuthUI();
+                renderAll();
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                if (!supabaseClient) return;
+                await supabaseClient.auth.signOut();
+                currentUser = null;
+                updateAuthUI();
+                renderAll();
+            });
+        }
+
+        // 初始化
+        generateStars();
+        initAquarium();
+        updateAuthUI();
+        renderAll();
+        bootstrapSupabase();
+    });
+</script>
+</body>
+</html>
+
